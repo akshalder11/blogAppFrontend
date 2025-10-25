@@ -42,7 +42,7 @@ const LoadingSplash = ({ isSuccess }) => {
         </motion.div>
 
         <motion.div
-          className="h-2 w-48 overflow-hidden rounded-full"
+          className="h-2 w-48 overflow-hidden rounded-full bg-gray-200"
           initial={{ width: 0, opacity: 1 }}
           animate={{ 
             width: 192,
