@@ -5,12 +5,14 @@ import RootLayout from './layouts/RootLayout';
 import LoadingSplash from './components/LoadingSplash';
 import { healthCheck } from './api/health';
 import "./App.css";
+import PageSkeleton from './components/ui/PageSkeleton';
 
 // Lazy load pages for code splitting
 const Home = lazy(() => import('./pages/Home'));
 const Login = lazy(() => import('./pages/Login'));
 const SignUp = lazy(() => import('./pages/SignUp'));
 const PostDetail = lazy(() => import('./pages/PostDetail'));
+const RegistrationSuccess = lazy(() => import('./pages/RegistrationSuccess'));
 
 const router = createBrowserRouter([
   {
@@ -32,6 +34,10 @@ const router = createBrowserRouter([
       {
         path: 'posts/:postId',
         element: <PostDetail />,
+      },
+      {
+        path: 'registration-success',
+        element: <RegistrationSuccess />,
       },
     ],
   },
@@ -85,15 +91,11 @@ function App() {
         {isLoading && <LoadingSplash isSuccess={isSuccess} />}
       </AnimatePresence>
       
-      <Suspense
-        fallback={
-          <div className="grid min-h-screen place-items-center">
-            <div className="text-lg">Loading...</div>
-          </div>
-        }
-      >
-        <RouterProvider router={router} />
-      </Suspense>
+      <AnimatePresence mode="wait">
+        <Suspense fallback={<PageSkeleton />}>
+          <RouterProvider router={router} />
+        </Suspense>
+      </AnimatePresence>
     </>
   );
 }

@@ -4,7 +4,7 @@ import { WifiCog } from "lucide-react";
 const LoadingSplash = ({ isSuccess }) => {
   return (
     <motion.div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-white"
+      className="fixed inset-0 z-150 flex items-center justify-center bg-white"
       initial={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.5 }}
@@ -42,7 +42,7 @@ const LoadingSplash = ({ isSuccess }) => {
         </motion.div>
 
         <motion.div
-          className="h-2 w-48 overflow-hidden rounded-full bg-gray-200"
+          className="h-2 w-48 overflow-hidden rounded-full"
           initial={{ width: 0, opacity: 1 }}
           animate={{ 
             width: 192,

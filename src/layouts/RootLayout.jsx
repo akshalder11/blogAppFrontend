@@ -4,11 +4,11 @@ import Navbar from '../components/ui/Navbar';
 
 const RootLayout = () => {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen flex flex-col ">
       <Navbar />
-      <div className="container mx-auto px-4 py-8">
+      <main className="flex-1 container mx-auto px-4 py-8 mt-16">
         <Outlet />
-      </div>
+      </main>
       <Toaster position="top-center" />
     </div>
   );

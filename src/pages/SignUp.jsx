@@ -6,6 +6,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { loginStart, loginSuccess, loginFailure } from '../features/auth/authSlice';
+import { registerUser } from '../api/auth';
 
 const signupSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -33,18 +34,31 @@ const SignUp = () => {
   const onSubmit = async (data) => {
     try {
       dispatch(loginStart());
-      // TODO: Implement actual API call
-      // For now, simulate a successful signup and login
-      dispatch(loginSuccess({ id: 1, name: data.name, email: data.email }));
-      navigate('/');
+
+      // Call register API - backend expects `username` field
+      const payload = {
+        username: data.name,
+        email: data.email,
+        password: data.password,
+      };
+
+      console.log('Submitting registration with payload:', payload);
+      const response = await registerUser(payload);
+      console.log('Registration successful:', response);
+      
+      dispatch(loginSuccess(null)); // Just to clear loading state
+      navigate('/registration-success');
     } catch (err) {
-      dispatch(loginFailure(err.message));
+      console.error('Registration failed:', err);
+      const errorMessage = err?.response?.data?.error || err.message;
+      dispatch(loginFailure(errorMessage));
     }
   };
 
   return (
-    <div className="mx-auto max-w-md">
-      <h1 className="mb-8 text-center text-2xl font-bold">Create an Account</h1>
+    <div className="h-[calc(100vh-128px)] flex items-center justify-center">
+      <div className="max-w-md w-full px-4">
+        <h1 className="mb-8 text-center text-2xl font-bold">Create an Account</h1>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div>
           <label htmlFor="name" className="block text-sm font-medium text-gray-700">
@@ -119,6 +133,7 @@ const SignUp = () => {
           </Link>
         </p>
       </form>
+      </div>
     </div>
   );
 };
