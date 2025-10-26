@@ -80,7 +80,7 @@ React is all about components. Components are reusable pieces of UI that can con
         </CardHeader>
         <CardContent>
           {isAuthenticated ? (
-            <div className="prose prose-indigo max-w-none">
+            <div className="prose prose-blue max-w-none">
               {currentPost.content.split('\n').map((paragraph, index) => (
                 <p key={index}>{paragraph}</p>
               ))}
@@ -88,12 +88,12 @@ React is all about components. Components are reusable pieces of UI that can con
           ) : (
             <div>
               <p className="mb-4">{currentPost.preview}</p>
-              <div className="rounded-md bg-indigo-50 p-4">
-                <p className="text-indigo-700">
+              <div className="rounded-md bg-blue-50 p-4">
+                <p className="text-blue-700">
                   Please{' '}
                   <Button
                     variant="link"
-                    className="p-0 text-indigo-700 hover:text-indigo-900"
+                    className="p-0 text-blue-700 hover:text-blue-900"
                     onClick={() => navigate('/login')}
                   >
                     login
