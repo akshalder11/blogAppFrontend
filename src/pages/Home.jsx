@@ -48,34 +48,35 @@ const Home = () => {
 
   // Fetch posts from API
   useEffect(() => {
-    const fetchPosts = async () => {
-      dispatch(fetchPostsStart());
-      try {
-        const data = await getAllPosts();
-
-        const formattedPosts = data.map((post) => ({
-          id: post.id,
-          title: post.title,
-          author: post.user.username,
-          date: post.createdAt,
-          content: post.content,
-          preview:
-            post.content.length > 100
-              ? post.content.slice(0, 100) + "..."
-              : post.content,
-          likes: post.likeCount,
-          dislikes: post.dislikeCount,
-          isLiked: false,
-        }));
-
-        dispatch(fetchPostsSuccess(formattedPosts));
-      } catch (err) {
-        dispatch(fetchPostsFailure(err.message));
-      }
-    };
-
     fetchPosts();
   }, [dispatch]);
+
+  const fetchPosts = async () => {
+    dispatch(fetchPostsStart());
+    try {
+      const response = await getAllPosts();
+      console.log("Login successful:", response);
+      const formattedPosts = response.map((post) => ({
+        id: post.id,
+        title: post.title,
+        author: post.user.username,
+        date: post.createdAt,
+        content: post.content,
+        preview:
+          post.content.length > 100
+            ? post.content.slice(0, 100) + "..."
+            : post.content,
+        likes: post.likeCount,
+        dislikes: post.dislikeCount,
+        isLiked: false,
+      }));
+
+      dispatch(fetchPostsSuccess(formattedPosts));
+    } catch (err) {
+      const errorMessage = err?.response?.data?.error || err.message;
+      dispatch(fetchPostsFailure(errorMessage));
+    }
+  };
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -167,7 +168,13 @@ const Home = () => {
             animate="visible"
           >
             {posts.map((post) => (
-              <motion.div key={post.id} variants={cardVariants}>
+              <motion.div
+                key={post.id}
+                variants={cardVariants}
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                className="cursor-pointer"
+              >
                 <PostCard post={post} preview />
               </motion.div>
             ))}

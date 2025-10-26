@@ -40,7 +40,7 @@ const CardTitle = ({
 }) => {
   return (
     <h3
-      className={cn('text-xl font-semibold leading-none tracking-tight', className)}
+      className={cn('text-xl font-semibold leading-none tracking-tight line-clamp-1 py-1', className)}
       {...props}
     >
       {children}

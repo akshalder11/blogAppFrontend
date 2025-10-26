@@ -1,11 +1,21 @@
-import { useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import { motion } from 'framer-motion';
-import { ThumbsUp } from 'lucide-react';
-import { Button } from '../components/ui/Button';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '../components/ui/Card';
-import { setCurrentPost, toggleLike } from '../features/posts/postsSlice';
+import { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { motion } from "framer-motion";
+import { ThumbsUp } from "lucide-react";
+import moment from "moment";
+import { Button } from "../components/ui/Button";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+} from "../components/ui/Card";
+import { setCurrentPost, toggleLike } from "../features/posts/postsSlice";
+import { getPostById } from "../api/posts";
+import PostDetailSkeleton from "../components/ui/PostDetailSkeleton";
 
 const fadeIn = {
   hidden: { opacity: 0, y: 20 },
@@ -18,50 +28,59 @@ const PostDetail = () => {
   const navigate = useNavigate();
   const { currentPost } = useSelector((state) => state.posts);
   const { isAuthenticated } = useSelector((state) => state.auth);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    // TODO: Replace with actual API call
-    // For now, using mock data
-    const mockPost = {
-      id: parseInt(postId),
-      title: 'Getting Started with React',
-      author: 'John Doe',
-      date: '2025-10-24',
-      preview: 'Learn the basics of React and how to build your first application...',
-      content: `This is the full content of the blog post. It will only be visible to logged-in users.
-
-React is a powerful JavaScript library for building user interfaces. Let's explore how to get started with React and build your first application.
-
-1. Setting up your development environment
-First, you'll need Node.js installed on your computer. Then you can create a new React project using Create React App:
-
-\`\`\`bash
-npx create-react-app my-app
-cd my-app
-npm start
-\`\`\`
-
-2. Understanding Components
-React is all about components. Components are reusable pieces of UI that can contain both markup and logic...
-
-(Continue reading by logging in)`,
-      likes: 15,
-      isLiked: false,
+    const fetchPost = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const postData = await getPostById(postId);
+        // Map API data to frontend-friendly structure
+        const mappedPost = {
+          id: postData.id,
+          title: postData.title,
+          author: postData.user.username,
+          date: postData.createdAt,
+          preview:
+            postData.content.length > 200
+              ? postData.content.substring(0, 200) + "..."
+              : postData.content,
+          content: postData.content,
+          likes: postData.likeCount,
+          dislikes: postData.dislikeCount,
+          isLiked: false, // you can adjust if you track likes per user
+        };
+        dispatch(setCurrentPost(mappedPost));
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
     };
 
-    dispatch(setCurrentPost(mockPost));
+    fetchPost();
   }, [postId, dispatch]);
 
   const handleLike = () => {
     if (!isAuthenticated) {
-      navigate('/login');
+      navigate("/login");
       return;
     }
     dispatch(toggleLike(currentPost.id));
   };
 
+  if (loading) {
+    return <PostDetailSkeleton />;
+  }
+
+  if (error) {
+    return <div className="text-center text-red-500 py-8">{error}</div>;
+  }
+
   if (!currentPost) {
-    return <div className="text-center">Loading...</div>;
+    return <div className="text-center py-8">Post not found</div>;
   }
 
   return (
@@ -75,13 +94,14 @@ React is all about components. Components are reusable pieces of UI that can con
         <CardHeader>
           <CardTitle className="text-3xl">{currentPost.title}</CardTitle>
           <CardDescription>
-            By {currentPost.author} • {new Date(currentPost.date).toLocaleDateString()}
+            By {currentPost.author} •{" "}
+            {moment(currentPost.date).format("DD MMM, YYYY")}
           </CardDescription>
         </CardHeader>
         <CardContent>
           {isAuthenticated ? (
             <div className="prose prose-blue max-w-none">
-              {currentPost.content.split('\n').map((paragraph, index) => (
+              {currentPost.content.split("\n").map((paragraph, index) => (
                 <p key={index}>{paragraph}</p>
               ))}
             </div>
@@ -90,14 +110,14 @@ React is all about components. Components are reusable pieces of UI that can con
               <p className="mb-4">{currentPost.preview}</p>
               <div className="rounded-md bg-blue-50 p-4">
                 <p className="text-blue-700">
-                  Please{' '}
+                  Please{" "}
                   <Button
                     variant="link"
                     className="p-0 text-blue-700 hover:text-blue-900"
-                    onClick={() => navigate('/login')}
+                    onClick={() => navigate("/login")}
                   >
                     login
-                  </Button>{' '}
+                  </Button>{" "}
                   to read the full post.
                 </p>
               </div>
@@ -109,10 +129,10 @@ React is all about components. Components are reusable pieces of UI that can con
             variant="ghost"
             onClick={handleLike}
             disabled={!isAuthenticated}
-            className={currentPost.isLiked ? 'text-blue-600' : ''}
+            className={currentPost.isLiked ? "text-blue-600" : ""}
           >
             <ThumbsUp className="mr-2 h-4 w-4" />
-            {currentPost.likes} {currentPost.likes === 1 ? 'Like' : 'Likes'}
+            {currentPost.likes} {currentPost.likes === 1 ? "Like" : "Likes"}
           </Button>
         </CardFooter>
       </Card>
