@@ -36,9 +36,9 @@ const PageSkeleton = () => {
       initial={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.3, ease: "easeOut" }}
-      className="flex min-h-screen flex-col">
+      className="flex min-h-full flex-col">
       {/* Navbar placeholder - matches real navbar height */}
-      <header className="h-16 border-b border-gray-200 bg-white">
+      {/* <header className="h-16 border-b border-gray-200 bg-white">
         <div className="container mx-auto px-4 h-full flex items-center justify-between">
           <div className="h-6 w-32 bg-gray-200 rounded animate-pulse" />
           <div className="flex items-center gap-4">
@@ -46,14 +46,14 @@ const PageSkeleton = () => {
             <div className="h-9 w-20 bg-gray-200 rounded animate-pulse" />
           </div>
         </div>
-      </header>
+      </header> */}
 
       {/* Main content */}
       <main className="flex-1 container mx-auto px-4 py-8">
         {/* Page title */}
-        <div className="mb-8">
+        {/* <div className="mb-8">
           <div className="h-9 w-48 bg-gray-200 rounded animate-pulse" />
-        </div>
+        </div> */}
 
         {/* Posts grid */}
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">

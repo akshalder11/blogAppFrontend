@@ -2,7 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { LogOut, ChevronDown, UserCircle } from "lucide-react";
+import { LogOut, UserCircle, CircleChevronDown } from "lucide-react";
 import { logout } from "../../features/auth/authSlice";
 
 const Navbar = () => {
@@ -64,7 +64,7 @@ const Navbar = () => {
                 >
                   <UserCircle className="w-6 h-6 text-gray-700" />
                   <span className="font-medium text-gray-800">{user.username}</span>
-                  <ChevronDown
+                  <CircleChevronDown
                     className={`w-4 h-4 text-gray-700 transition-transform ${isDropdownOpen ? "rotate-180" : ""}`}
                   />
                 </button>

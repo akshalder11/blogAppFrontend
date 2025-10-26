@@ -1,46 +1,65 @@
-import { Link } from 'react-router-dom';
-import { ThumbsUp } from 'lucide-react';
-import { useDispatch, useSelector } from 'react-redux';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from './ui/Card';
-import { Button } from './ui/Button';
-import { toggleLike } from '../features/posts/postsSlice';
+import { Link } from "react-router-dom";
+import { ThumbsUp, ThumbsDown } from "lucide-react";
+import { useSelector } from "react-redux";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+} from "./ui/Card";
+import { Button } from "./ui/Button";
+import moment from "moment";
 
 const PostCard = ({ post, preview }) => {
-  const dispatch = useDispatch();
   const { isAuthenticated } = useSelector((state) => state.auth);
-
-  const handleLike = (e) => {
-    e.preventDefault();
-    if (!isAuthenticated) return;
-    dispatch(toggleLike(post.id));
-  };
 
   return (
     <Link to={`/posts/${post.id}`}>
-      <Card className="h-full">
+      <Card className="h-full flex flex-col">
         <CardHeader>
           <CardTitle>{post.title}</CardTitle>
           <CardDescription>By {post.author}</CardDescription>
         </CardHeader>
-        <CardContent>
+
+        <CardContent className="flex-1">
           <p className="line-clamp-3 text-gray-600">
             {preview ? post.preview : post.content}
           </p>
         </CardContent>
-        <CardFooter className="justify-between">
+
+        <CardFooter className="justify-between items-center">
           <span className="text-sm text-gray-500">
-            {new Date(post.date).toLocaleDateString()}
+            {moment(post.createdAt).format("D MMM, YYYY")}
           </span>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleLike}
-            disabled={!isAuthenticated}
-            className={post.isLiked ? 'text-blue-600' : ''}
-          >
-            <ThumbsUp className="mr-2 h-4 w-4" />
-            {post.likes}
-          </Button>
+
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              disabled={!isAuthenticated}
+              // className={post.isLiked ? "text-blue-600" : ""}
+              className={`hover:bg-white  ${
+                post.isLiked
+                  ? "text-blue-600 hover:text-blue-600"
+                  : "hover:text-gray-600"
+              }`}
+            >
+              <ThumbsUp className="mr-1 h-4 w-4" />
+              {post.likes}
+            </Button>
+
+            <Button
+              variant="ghost"
+              size="sm"
+              disabled={!isAuthenticated}
+              className="text-gray-600 hover:bg-white hover:text-gray-600"
+            >
+              <ThumbsDown className="mr-1 h-4 w-4" />
+              {post.dislikes}
+            </Button>
+          </div>
         </CardFooter>
       </Card>
     </Link>

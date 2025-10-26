@@ -1,6 +1,13 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  FilePlus2,
+  TextAlignStart,
+  Image,
+  ListMusic,
+  SquarePlay,
+} from "lucide-react";
 import PageSkeleton from "../components/ui/PageSkeleton";
 import PostCard from "../components/PostCard";
 import {
@@ -8,41 +15,12 @@ import {
   fetchPostsSuccess,
   fetchPostsFailure,
 } from "../features/posts/postsSlice";
-
-// Temporary mock data
-const mockPosts = [
-  {
-    id: 1,
-    title: "Getting Started with React",
-    author: "John Doe",
-    date: "2025-10-24",
-    preview:
-      "Learn the basics of React and how to build your first application...",
-    content: "Full content will be available after login...",
-    likes: 15,
-    isLiked: false,
-  },
-  {
-    id: 2,
-    title: "Advanced Redux Patterns",
-    author: "Jane Smith",
-    date: "2025-10-23",
-    preview: "Discover advanced patterns and best practices for Redux...",
-    content: "Full content will be available after login...",
-    likes: 23,
-    isLiked: false,
-  },
-  // Add more mock posts as needed
-];
+import { getAllPosts } from "../api/posts";
 
 // Motion variants
 const containerVariants = {
   hidden: {},
-  visible: {
-    transition: {
-      staggerChildren: 0.15,
-    },
-  },
+  visible: { transition: { staggerChildren: 0.15 } },
 };
 
 const headingVariants = {
@@ -55,31 +33,71 @@ const cardVariants = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } },
 };
 
+// Dropdown animation
+const dropdownVariants = {
+  hidden: { opacity: 0, y: -10 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.2 } },
+  exit: { opacity: 0, y: -10, transition: { duration: 0.15 } },
+};
+
 const Home = () => {
   const dispatch = useDispatch();
   const { posts, loading, error } = useSelector((state) => state.posts);
+  const { isAuthenticated } = useSelector((state) => state.auth);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
+  // Fetch posts from API
   useEffect(() => {
     const fetchPosts = async () => {
       dispatch(fetchPostsStart());
       try {
-        // Simulate API delay
-        await new Promise((res) => setTimeout(res, 500));
-        dispatch(fetchPostsSuccess(mockPosts));
+        const data = await getAllPosts();
+
+        const formattedPosts = data.map((post) => ({
+          id: post.id,
+          title: post.title,
+          author: post.user.username,
+          date: post.createdAt,
+          content: post.content,
+          preview:
+            post.content.length > 100
+              ? post.content.slice(0, 100) + "..."
+              : post.content,
+          likes: post.likeCount,
+          dislikes: post.dislikeCount,
+          isLiked: false,
+        }));
+
+        dispatch(fetchPostsSuccess(formattedPosts));
       } catch (err) {
         dispatch(fetchPostsFailure(err.message));
       }
     };
+
     fetchPosts();
   }, [dispatch]);
 
-  // if (loading) {
-  //   return <PageSkeleton />;
-  // }
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (!e.target.closest(".create-post-wrapper")) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
+  }, []);
 
   if (error) {
     return <div className="text-center text-red-500 py-8">{error}</div>;
   }
+
+  const postOptions = [
+    { label: "Text", icon: <TextAlignStart className="w-4 h-4" /> },
+    { label: "Image", icon: <Image className="w-4 h-4" /> },
+    { label: "Audio", icon: <ListMusic className="w-4 h-4" /> },
+    { label: "Video", icon: <SquarePlay className="w-4 h-4" /> },
+  ];
 
   return (
     <motion.div
@@ -88,25 +106,73 @@ const Home = () => {
       initial="hidden"
       animate="visible"
     >
-      {/* Page Heading */}
-      <motion.h1 className="mb-8 text-3xl font-bold" variants={headingVariants}>
-        Latest Blog Posts
-      </motion.h1>
+      {/* Header Row */}
+      <motion.div
+        className="mb-8 flex items-center justify-between"
+        variants={headingVariants}
+      >
+        <h1 className="text-3xl font-bold">Latest Blog Posts</h1>
+
+        {/* Create Post Dropdown */}
+        {isAuthenticated && (
+          <div className="relative create-post-wrapper">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.97 }}
+              onClick={() => setIsDropdownOpen((prev) => !prev)}
+              className="flex items-center gap-2 px-4 py-2 text-sm text-blue-600 border border-gray-200 rounded-md bg-white shadow-sm hover:bg-blue-600 hover:text-white transition-colors cursor-pointer"
+            >
+              <FilePlus2 className="w-4 h-4" />
+              <span className="font-medium">Create Post</span>
+            </motion.button>
+
+            <AnimatePresence>
+              {isDropdownOpen && (
+                <motion.div
+                  className="absolute right-0 mt-2 w-40 bg-white shadow-lg rounded-lg border border-gray-100 z-10"
+                  variants={dropdownVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
+                >
+                  {postOptions.map((option, index) => (
+                    <button
+                      key={index}
+                      className="flex items-center gap-2 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer"
+                      onClick={() => {
+                        console.log(`Selected ${option.label} post`);
+                        setIsDropdownOpen(false);
+                      }}
+                    >
+                      {option.icon}
+                      {option.label}
+                    </button>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        )}
+      </motion.div>
 
       {/* Posts Grid */}
-      {posts.length > 0 && (
-        <motion.div
-          className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-        >
-          {posts.map((post) => (
-            <motion.div key={post.id} variants={cardVariants}>
-              <PostCard post={post} preview />
-            </motion.div>
-          ))}
-        </motion.div>
+      {loading ? (
+        <PageSkeleton />
+      ) : (
+        posts.length > 0 && (
+          <motion.div
+            className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+          >
+            {posts.map((post) => (
+              <motion.div key={post.id} variants={cardVariants}>
+                <PostCard post={post} preview />
+              </motion.div>
+            ))}
+          </motion.div>
+        )
       )}
     </motion.div>
   );
