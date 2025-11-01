@@ -21,3 +21,26 @@ export const createPost = async ({ title, content, mediaType, mediaUrl = null })
     fallbackMessage: 'Failed to create post' 
   });
 };
+
+export const updatePost = async ({ postId, title, content, mediaType, mediaUrl = null }) => {
+  return api.put('/posts/updatePost', { 
+    postId,
+    title, 
+    content, 
+    mediaType: mediaType.toUpperCase(), 
+    mediaUrl,
+  }, { 
+    auth: true,
+    attachUser: false,
+    fallbackMessage: 'Failed to update post' 
+  });
+};
+
+export const deletePost = async (postId) => {
+  return api.delete('/posts/deletePost', { 
+    data: { postId },
+    auth: true, 
+    attachUser: false,
+    fallbackMessage: 'Failed to delete post' 
+  });
+};

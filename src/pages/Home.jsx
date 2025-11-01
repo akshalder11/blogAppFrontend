@@ -58,7 +58,7 @@ const Home = () => {
     dispatch(fetchPostsStart());
     try {
       const response = await getAllPosts();
-      console.log("Login successful:", response);
+      // console.log("Login successful:", response);
       const formattedPosts = response.map((post) => ({
         id: post.id,
         title: post.title,
