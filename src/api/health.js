@@ -1,11 +1,8 @@
-import axios from 'axios';
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+import api from './client';
 
 export const healthCheck = async () => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/health`);
-    return response.data;
+    return await api.get('/health', { fallbackMessage: 'Backend service is not available' });
   } catch (error) {
     throw new Error('Backend service is not available');
   }

@@ -8,27 +8,8 @@ import "./App.css";
 import PageSkeleton from "./components/ui/PageSkeleton";
 import { useDispatch } from "react-redux";
 import { loginSuccess, logout } from "./features/auth/authSlice";
+import appRouter from "./router/appRouter";
 
-// Lazy load pages
-const Home = lazy(() => import("./pages/Home"));
-const Login = lazy(() => import("./pages/Login"));
-const SignUp = lazy(() => import("./pages/SignUp"));
-const PostDetail = lazy(() => import("./pages/PostDetail"));
-const RegistrationSuccess = lazy(() => import("./pages/RegistrationSuccess"));
-
-const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <RootLayout />,
-    children: [
-      { index: true, element: <Home /> },
-      { path: "login", element: <Login /> },
-      { path: "signup", element: <SignUp /> },
-      { path: "posts/:postId", element: <PostDetail /> },
-      { path: "registration-success", element: <RegistrationSuccess /> },
-    ],
-  },
-]);
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -85,11 +66,13 @@ function App() {
         {isLoading && <LoadingSplash isSuccess={isSuccess} />}
       </AnimatePresence>
 
-      <AnimatePresence mode="wait">
-        <Suspense fallback={<PageSkeleton />}>
-          <RouterProvider router={router} />
-        </Suspense>
-      </AnimatePresence>
+      {!isLoading && (
+        <AnimatePresence mode="wait">
+          <Suspense fallback={<PageSkeleton />}>
+            <RouterProvider router={appRouter} />
+          </Suspense>
+        </AnimatePresence>
+      )}
     </>
   );
 }

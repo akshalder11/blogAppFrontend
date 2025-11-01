@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import PageSkeleton from "../components/ui/PageSkeleton";
 import PostCard from "../components/PostCard";
+import CreatePostModal from "../components/CreatePostModal";
 import {
   fetchPostsStart,
   fetchPostsSuccess,
@@ -45,6 +46,8 @@ const Home = () => {
   const { posts, loading, error } = useSelector((state) => state.posts);
   const { isAuthenticated } = useSelector((state) => state.auth);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedMediaType, setSelectedMediaType] = useState('Text');
 
   // Fetch posts from API
   useEffect(() => {
@@ -109,7 +112,7 @@ const Home = () => {
     >
       {/* Header Row */}
       <motion.div
-        className="mb-8 flex items-center justify-between"
+        className="mb-8 flex flex-wrap gap-4 items-center justify-between"
         variants={headingVariants}
       >
         <h1 className="text-3xl font-bold">Latest Blog Posts</h1>
@@ -121,7 +124,7 @@ const Home = () => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.97 }}
               onClick={() => setIsDropdownOpen((prev) => !prev)}
-              className="flex items-center gap-2 px-4 py-2 text-sm text-blue-600 border border-gray-200 rounded-md bg-white shadow-sm hover:bg-blue-600 hover:text-white transition-colors cursor-pointer"
+              className="flex items-center gap-2 px-4 py-2 text-sm text-blue-600 border border-gray-300 rounded-full bg-white  hover:bg-blue-600 hover:text-white transition-colors cursor-pointer"
             >
               <FilePlus2 className="w-4 h-4" />
               <span className="font-medium">Create Post</span>
@@ -141,7 +144,8 @@ const Home = () => {
                       key={index}
                       className="flex items-center gap-2 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer"
                       onClick={() => {
-                        console.log(`Selected ${option.label} post`);
+                        setSelectedMediaType(option.label);
+                        setIsModalOpen(true);
                         setIsDropdownOpen(false);
                       }}
                     >
@@ -181,6 +185,13 @@ const Home = () => {
           </motion.div>
         )
       )}
+    
+      {/* Create Post Modal */}
+      <CreatePostModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)}
+        initialMediaType={selectedMediaType}
+      />
     </motion.div>
   );
 };
