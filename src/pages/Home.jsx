@@ -191,6 +191,7 @@ const Home = () => {
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)}
         initialMediaType={selectedMediaType}
+        onPostCreated={fetchPosts}
       />
     </motion.div>
   );

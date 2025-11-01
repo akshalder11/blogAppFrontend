@@ -5,13 +5,16 @@ import Modal from './ui/Modal';
 import ConfirmDialog from './ui/ConfirmDialog';
 import { Button } from './ui/Button';
 import { Input } from './ui/Input';
+import { createPost } from '../api/posts';
 
-const CreatePostModal = ({ isOpen, onClose, initialMediaType = 'Text' }) => {
+const CreatePostModal = ({ isOpen, onClose, initialMediaType = 'Text', onPostCreated }) => {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [mediaType, setMediaType] = useState(initialMediaType);
   const [showPostConfirm, setShowPostConfirm] = useState(false);
   const [showDiscardConfirm, setShowDiscardConfirm] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState(null);
   
   // Keep internal mediaType in sync with the latest selection passed from parent
   // and only update when the modal becomes open, so it reflects the user's
@@ -29,15 +32,38 @@ const CreatePostModal = ({ isOpen, onClose, initialMediaType = 'Text' }) => {
   ];
 
   const handlePost = () => {
+    setError(null);
     setShowPostConfirm(true);
   };
 
-  const handleConfirmPost = () => {
-    // TODO: Implement actual post creation API call
-    console.log('Creating post:', { title, content, mediaType });
-    setShowPostConfirm(false);
-    resetForm();
-    onClose();
+  const handleConfirmPost = async () => {
+    setIsSubmitting(true);
+    setError(null);
+    
+    try {
+      const response = await createPost({
+        title: title.trim(),
+        content: content.trim(),
+        mediaType,
+        mediaUrl: null, // Future enhancement for media uploads
+      });
+      
+      console.log('Post created successfully:', response);
+      setShowPostConfirm(false);
+      resetForm();
+      onClose();
+      
+      // Notify parent to refresh posts
+      if (onPostCreated) {
+        onPostCreated();
+      }
+    } catch (err) {
+      console.error('Failed to create post:', err);
+      setError(err.message);
+      setShowPostConfirm(false);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleDiscard = () => {
@@ -54,6 +80,8 @@ const CreatePostModal = ({ isOpen, onClose, initialMediaType = 'Text' }) => {
     setTitle('');
     setContent('');
     setMediaType(initialMediaType);
+    setError(null);
+    setIsSubmitting(false);
   };
 
   return (
@@ -115,21 +143,29 @@ const CreatePostModal = ({ isOpen, onClose, initialMediaType = 'Text' }) => {
             </div>
           </div>
 
+          {/* Error Message */}
+          {error && (
+            <div className="p-3 bg-red-50 border border-red-200 rounded-md">
+              <p className="text-sm text-red-600">{error}</p>
+            </div>
+          )}
+
           {/* Action Buttons */}
           <div className="flex gap-3 justify-end pt-4 border-t border-gray-200">
             <Button
               variant="outline"
               onClick={handleDiscard}
               className="px-6"
+              disabled={isSubmitting}
             >
               Discard
             </Button>
             <Button
               onClick={handlePost}
               className="px-6 bg-blue-600 hover:bg-blue-700"
-              disabled={!title.trim() || !content.trim()}
+              disabled={!title.trim() || !content.trim() || isSubmitting}
             >
-              Post
+              {isSubmitting ? 'Posting...' : 'Post'}
             </Button>
           </div>
         </div>

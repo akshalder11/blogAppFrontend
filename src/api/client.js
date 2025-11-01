@@ -20,6 +20,17 @@ const getToken = () => {
   }
 };
 
+const getUserId = () => {
+  try {
+    const raw = localStorage.getItem('user');
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    return parsed?.id || null;
+  } catch {
+    return null;
+  }
+};
+
 const normalizeError = (err, fallback = 'Request failed') => {
   return (
     err?.response?.data?.error ||
@@ -29,7 +40,11 @@ const normalizeError = (err, fallback = 'Request failed') => {
   );
 };
 
-const request = async (method, url, { data, params, headers = {}, auth = false, fallbackMessage } = {}) => {
+const request = async (
+  method,
+  url,
+  { data, params, headers = {}, auth = false, attachUser = false, fallbackMessage } = {}
+) => {
   const config = {
     method,
     url,
@@ -44,6 +59,14 @@ const request = async (method, url, { data, params, headers = {}, auth = false, 
       throw new Error('User not authenticated');
     }
     config.headers.Authorization = `Bearer ${token}`;
+
+    // Optionally attach user.id into payload when requested
+    if (attachUser && data && typeof data === 'object' && !data.user) {
+      const userId = getUserId();
+      if (userId) {
+        config.data = { ...data, user: { id: userId } };
+      }
+    }
   }
 
   try {
