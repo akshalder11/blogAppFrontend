@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { motion } from "framer-motion";
-import { ThumbsUp, Pencil, Trash2 } from "lucide-react";
+import { ThumbsUp, ThumbsDown, Pencil, Trash2 } from "lucide-react";
 import moment from "moment";
 import { Button } from "../components/ui/Button";
 import ConfirmDialog from "../components/ui/ConfirmDialog";
@@ -15,8 +15,9 @@ import {
   CardContent,
   CardFooter,
 } from "../components/ui/Card";
-import { setCurrentPost, toggleLike } from "../features/posts/postsSlice";
+import { setCurrentPost, toggleLike, toggleDislike } from "../features/posts/postsSlice";
 import { getPostById, deletePost } from "../api/posts";
+import { reactToPost } from "../api/reactions";
 import PostDetailSkeleton from "../components/ui/PostDetailSkeleton";
 
 const fadeIn = {
@@ -35,6 +36,8 @@ const PostDetail = () => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [isReacting, setIsReacting] = useState(false);
+  const [reactionError, setReactionError] = useState(null);
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -56,6 +59,7 @@ const PostDetail = () => {
           likes: postData.likeCount,
           dislikes: postData.dislikeCount,
           isLiked: false, // you can adjust if you track likes per user
+          isDisliked: false, // you can adjust if you track dislikes per user
           // Convert API mediaType (TEXT/IMAGE/AUDIO/VIDEO) to UI format (Text/Image/Audio/Video)
           mediaType: postData.mediaType 
             ? postData.mediaType.charAt(0) + postData.mediaType.slice(1).toLowerCase() 
@@ -72,12 +76,43 @@ const PostDetail = () => {
     fetchPost();
   }, [postId, dispatch]);
 
-  const handleLike = () => {
+  const handleLike = async () => {
     if (!isAuthenticated) {
       navigate("/login");
       return;
     }
-    dispatch(toggleLike(currentPost.id));
+    if (!currentPost || !user) return;
+    try {
+      setReactionError(null);
+      setIsReacting(true);
+      // Call API first, then update UI on success
+      await reactToPost({ postId: currentPost.id, userId: user.id, reactionType: 'LIKE' });
+      dispatch(toggleLike(currentPost.id));
+    } catch (e) {
+      console.error('Failed to like post:', e);
+      setReactionError(e.message || 'Failed to like post');
+    } finally {
+      setIsReacting(false);
+    }
+  };
+
+  const handleDislike = async () => {
+    if (!isAuthenticated) {
+      navigate("/login");
+      return;
+    }
+    if (!currentPost || !user) return;
+    try {
+      setReactionError(null);
+      setIsReacting(true);
+      await reactToPost({ postId: currentPost.id, userId: user.id, reactionType: 'DISLIKE' });
+      dispatch(toggleDislike(currentPost.id));
+    } catch (e) {
+      console.error('Failed to dislike post:', e);
+      setReactionError(e.message || 'Failed to dislike post');
+    } finally {
+      setIsReacting(false);
+    }
   };
 
   const handleUpdate = () => {
@@ -256,16 +291,28 @@ const PostDetail = () => {
             </div>
           )}
         </CardContent>
-        <CardFooter>
+        <CardFooter className="flex gap-2 justify-start items-center flex-wrap">
           <Button
             variant="ghost"
             onClick={handleLike}
-            disabled={!isAuthenticated}
+            disabled={!isAuthenticated || isReacting}
             className={currentPost.isLiked ? "text-blue-600" : ""}
           >
             <ThumbsUp className="mr-2 h-4 w-4" />
             {currentPost.likes} {currentPost.likes === 1 ? "Like" : "Likes"}
           </Button>
+          <Button
+            variant="ghost"
+            onClick={handleDislike}
+            disabled={!isAuthenticated || isReacting}
+            className={currentPost.isDisliked ? "text-red-600" : ""}
+          >
+            <ThumbsDown className="mr-2 h-4 w-4" />
+            {currentPost.dislikes} {currentPost.dislikes === 1 ? "Dislike" : "Dislikes"}
+          </Button>
+          {reactionError && (
+            <div className="basis-full text-sm text-red-600">{reactionError}</div>
+          )}
         </CardFooter>
       </Card>
 
