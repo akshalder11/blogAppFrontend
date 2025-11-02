@@ -5,8 +5,22 @@ export const getAllPosts = async () => {
 };
 
 
+// Helper to read logged-in user id from localStorage
+const getUserIdFromStorage = () => {
+  try {
+    const raw = localStorage.getItem('user');
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    return parsed?.id || null;
+  } catch (e) {
+    return null;
+  }
+};
+
 export const getPostById = async (postId) => {
-  return api.post('/posts/getPost', { postId }, { auth: true, attachUser: false, fallbackMessage: 'Failed to fetch post' });
+  const userId = getUserIdFromStorage();
+  const payload = userId ? { postId, userId } : { postId };
+  return api.post('/posts/getPost', payload, { auth: true, attachUser: false, fallbackMessage: 'Failed to fetch post' });
 };
 
 export const createPost = async ({ title, content, mediaType, mediaUrl = null }) => {

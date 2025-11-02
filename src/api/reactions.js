@@ -21,4 +21,21 @@ export const reactToPost = async ({ postId, userId, reactionType }) => {
   );
 };
 
-export default { reactToPost };
+// Remove reaction from a post
+// payload: { postId: number|string, userId: number|string }
+export const removeReaction = async ({ postId, userId }) => {
+  if (!postId || !userId) {
+    throw new Error('postId and userId are required');
+  }
+  return api.delete(
+    '/postReactions/removeReactPost',
+    {
+      data: { postId, userId },
+      auth: true,
+      attachUser: false,
+      fallbackMessage: 'Failed to remove reaction',
+    }
+  );
+};
+
+export default { reactToPost, removeReaction };

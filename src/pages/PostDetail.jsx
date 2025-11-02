@@ -17,7 +17,7 @@ import {
 } from "../components/ui/Card";
 import { setCurrentPost, toggleLike, toggleDislike } from "../features/posts/postsSlice";
 import { getPostById, deletePost } from "../api/posts";
-import { reactToPost } from "../api/reactions";
+import { reactToPost, removeReaction } from "../api/reactions";
 import PostDetailSkeleton from "../components/ui/PostDetailSkeleton";
 
 const fadeIn = {
@@ -58,8 +58,8 @@ const PostDetail = () => {
           content: postData.content,
           likes: postData.likeCount,
           dislikes: postData.dislikeCount,
-          isLiked: false, // you can adjust if you track likes per user
-          isDisliked: false, // you can adjust if you track dislikes per user
+          isLiked: postData.hasLikedByCurrentUser || false,
+          isDisliked: postData.hasDisLikedByCurrentUser || false,
           // Convert API mediaType (TEXT/IMAGE/AUDIO/VIDEO) to UI format (Text/Image/Audio/Video)
           mediaType: postData.mediaType 
             ? postData.mediaType.charAt(0) + postData.mediaType.slice(1).toLowerCase() 
@@ -82,15 +82,42 @@ const PostDetail = () => {
       return;
     }
     if (!currentPost || !user) return;
+    
+    // Store previous state for rollback
+    const wasLiked = currentPost.isLiked;
+    const wasDisliked = currentPost.isDisliked;
+    
     try {
       setReactionError(null);
-      setIsReacting(true);
-      // Call API first, then update UI on success
-      await reactToPost({ postId: currentPost.id, userId: user.id, reactionType: 'LIKE' });
+      
+      // Optimistic UI update - update immediately
       dispatch(toggleLike(currentPost.id));
+      
+      // Run API in background
+      setIsReacting(true);
+      if (wasLiked) {
+        await removeReaction({ postId: currentPost.id, userId: user.id });
+      } else {
+        await reactToPost({ postId: currentPost.id, userId: user.id, reactionType: 'LIKE' });
+      }
+      
+      // API succeeded - keep the optimistic update
     } catch (e) {
       console.error('Failed to like post:', e);
       setReactionError(e.message || 'Failed to like post');
+      
+      // Rollback: revert to previous state
+      if (wasLiked) {
+        // Was liked, tried to remove, failed -> restore like
+        dispatch(toggleLike(currentPost.id));
+      } else if (wasDisliked) {
+        // Was disliked, tried to like, failed -> restore dislike and remove like
+        dispatch(toggleLike(currentPost.id)); // Remove the optimistic like
+        dispatch(toggleDislike(currentPost.id)); // Restore the dislike
+      } else {
+        // Was neutral, tried to like, failed -> remove the optimistic like
+        dispatch(toggleLike(currentPost.id));
+      }
     } finally {
       setIsReacting(false);
     }
@@ -102,14 +129,42 @@ const PostDetail = () => {
       return;
     }
     if (!currentPost || !user) return;
+    
+    // Store previous state for rollback
+    const wasLiked = currentPost.isLiked;
+    const wasDisliked = currentPost.isDisliked;
+    
     try {
       setReactionError(null);
-      setIsReacting(true);
-      await reactToPost({ postId: currentPost.id, userId: user.id, reactionType: 'DISLIKE' });
+      
+      // Optimistic UI update - update immediately
       dispatch(toggleDislike(currentPost.id));
+      
+      // Run API in background
+      setIsReacting(true);
+      if (wasDisliked) {
+        await removeReaction({ postId: currentPost.id, userId: user.id });
+      } else {
+        await reactToPost({ postId: currentPost.id, userId: user.id, reactionType: 'DISLIKE' });
+      }
+      
+      // API succeeded - keep the optimistic update
     } catch (e) {
       console.error('Failed to dislike post:', e);
       setReactionError(e.message || 'Failed to dislike post');
+      
+      // Rollback: revert to previous state
+      if (wasDisliked) {
+        // Was disliked, tried to remove, failed -> restore dislike
+        dispatch(toggleDislike(currentPost.id));
+      } else if (wasLiked) {
+        // Was liked, tried to dislike, failed -> restore like and remove dislike
+        dispatch(toggleDislike(currentPost.id)); // Remove the optimistic dislike
+        dispatch(toggleLike(currentPost.id)); // Restore the like
+      } else {
+        // Was neutral, tried to dislike, failed -> remove the optimistic dislike
+        dispatch(toggleDislike(currentPost.id));
+      }
     } finally {
       setIsReacting(false);
     }
@@ -136,8 +191,11 @@ const PostDetail = () => {
           content: postData.content,
           likes: postData.likeCount,
           dislikes: postData.dislikeCount,
-          isLiked: false,
-          mediaType: postData.mediaType,
+          isLiked: postData.hasLikedByCurrentUser || false,
+          isDisliked: postData.hasDisLikedByCurrentUser || false,
+          mediaType: postData.mediaType 
+            ? postData.mediaType.charAt(0) + postData.mediaType.slice(1).toLowerCase() 
+            : 'Text',
         };
         dispatch(setCurrentPost(mappedPost));
       } catch (err) {
@@ -295,8 +353,8 @@ const PostDetail = () => {
           <Button
             variant="ghost"
             onClick={handleLike}
-            disabled={!isAuthenticated || isReacting}
-            className={currentPost.isLiked ? "text-blue-600" : ""}
+            disabled={!isAuthenticated || isAuthor()}
+            className={`${currentPost.isLiked ? "text-blue-600" : ""} hover:text-blue-600`}
           >
             <ThumbsUp className="mr-2 h-4 w-4" />
             {currentPost.likes} {currentPost.likes === 1 ? "Like" : "Likes"}
@@ -304,8 +362,8 @@ const PostDetail = () => {
           <Button
             variant="ghost"
             onClick={handleDislike}
-            disabled={!isAuthenticated || isReacting}
-            className={currentPost.isDisliked ? "text-red-600" : ""}
+            disabled={!isAuthenticated || isAuthor()}
+            className={`${currentPost.isDisliked ? "text-red-600" : ""} hover:text-red-600`}
           >
             <ThumbsDown className="mr-2 h-4 w-4" />
             {currentPost.dislikes} {currentPost.dislikes === 1 ? "Dislike" : "Dislikes"}

@@ -18,7 +18,7 @@ const PostCard = ({ post, preview }) => {
       <Link to={`/posts/${post.id}`} className="flex-1 flex flex-col">
         <Card className="flex-1 flex flex-col h-full">
           <CardHeader>
-            <CardTitle>{post.title}</CardTitle>
+            <CardTitle className="truncate">{post.title}</CardTitle>
             <CardDescription>By {post.author}</CardDescription>
           </CardHeader>
 
