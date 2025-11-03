@@ -23,6 +23,21 @@ const PostCard = ({ post, preview }) => {
           </CardHeader>
 
           <CardContent className="flex-1">
+            {/* Thumbnail for image posts: show only the first image */}
+            {post.mediaType === 'Image' && post.mediaUrls && post.mediaUrls.length > 0 && (
+              <div className="mb-4 overflow-hidden rounded-lg bg-gray-100 h-48">
+                <img
+                  src={post.mediaUrls[0]}
+                  alt={post.title}
+                  className="w-full h-full object-cover"
+                  draggable={false}
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect fill="%23f0f0f0" width="400" height="300"/%3E%3Ctext fill="%23999" x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle"%3ENo preview%3C/text%3E%3C/svg%3E';
+                  }}
+                />
+              </div>
+            )}
             <p className="line-clamp-3 text-gray-600">
               {preview ? post.preview : post.content}
             </p>
@@ -30,7 +45,7 @@ const PostCard = ({ post, preview }) => {
 
           <CardFooter className="justify-between items-center">
             <span className="text-sm text-gray-500">
-              {moment(post.createdAt).format("D MMM, YYYY")}
+              {moment(post.date).format("D MMM, YYYY")}
             </span>
 
             <div className="flex items-center gap-2">

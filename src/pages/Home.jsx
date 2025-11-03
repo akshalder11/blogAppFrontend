@@ -59,20 +59,37 @@ const Home = () => {
     try {
       const response = await getAllPosts();
       // console.log("Login successful:", response);
-      const formattedPosts = response.map((post) => ({
-        id: post.id,
-        title: post.title,
-        author: post.user.username,
-        date: post.createdAt,
-        content: post.content,
-        preview:
-          post.content.length > 100
-            ? post.content.slice(0, 100) + "..."
-            : post.content,
-        likes: post.likeCount,
-        dislikes: post.dislikeCount,
-        isLiked: false,
-      }));
+      const baseWithoutApi = import.meta.env.VITE_API_BASE_URL?.replace('/api', '') || '';
+      const pickDisplayUrl = (u) => {
+        if (!u) return null;
+        return u.startsWith('http') ? u : `${baseWithoutApi}${u}`;
+      };
+
+      const formattedPosts = response.map((post) => {
+        const mediaType = post.mediaType
+          ? post.mediaType.charAt(0) + post.mediaType.slice(1).toLowerCase()
+          : 'Text';
+        const mediaUrlsArr = Array.isArray(post.mediaUrls)
+          ? post.mediaUrls.map(pickDisplayUrl).filter(Boolean)
+          : (post.mediaUrls ? [pickDisplayUrl(post.mediaUrls)].filter(Boolean) : []);
+
+        return {
+          id: post.id,
+          title: post.title,
+          author: post.user.username,
+          date: post.createdAt,
+          content: post.content,
+          preview:
+            post.content.length > 100
+              ? post.content.slice(0, 100) + "..."
+              : post.content,
+          likes: post.likeCount,
+          dislikes: post.dislikeCount,
+          isLiked: false,
+          mediaType,
+          mediaUrls: mediaUrlsArr,
+        };
+      });
 
       dispatch(fetchPostsSuccess(formattedPosts));
     } catch (err) {
@@ -166,7 +183,7 @@ const Home = () => {
       ) : (
         posts.length > 0 && (
           <motion.div
-            className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
+            className="columns-1 sm:columns-2 lg:columns-3"
             variants={containerVariants}
             initial="hidden"
             animate="visible"
@@ -177,7 +194,8 @@ const Home = () => {
                 variants={cardVariants}
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
-                className="cursor-pointer"
+                className="mb-6 break-inside-avoid cursor-pointer w-full inline-block"
+                style={{ breakInside: 'avoid' }}
               >
                 <PostCard post={post} preview />
               </motion.div>
