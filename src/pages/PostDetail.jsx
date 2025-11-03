@@ -7,6 +7,7 @@ import moment from "moment";
 import { Button } from "../components/ui/Button";
 import ConfirmDialog from "../components/ui/ConfirmDialog";
 import EditPostModal from "../components/EditPostModal";
+import Carousel from "../components/ui/Carousel";
 import {
   Card,
   CardHeader,
@@ -46,6 +47,11 @@ const PostDetail = () => {
       try {
         const postData = await getPostById(postId);
         // Map API data to frontend-friendly structure
+        const baseWithoutApi = import.meta.env.VITE_API_BASE_URL?.replace('/api', '') || '';
+        const pickDisplayUrl = (u) => {
+          if (!u) return null;
+          return u.startsWith('http') ? u : `${baseWithoutApi}${u}`;
+        };
         const mappedPost = {
           id: postData.id,
           title: postData.title,
@@ -64,6 +70,10 @@ const PostDetail = () => {
           mediaType: postData.mediaType 
             ? postData.mediaType.charAt(0) + postData.mediaType.slice(1).toLowerCase() 
             : 'Text',
+          // Accept both string and array; convert all to full URLs for display
+          mediaUrls: Array.isArray(postData.mediaUrls) 
+            ? postData.mediaUrls.map(pickDisplayUrl).filter(Boolean)
+            : (postData.mediaUrls ? [pickDisplayUrl(postData.mediaUrls)].filter(Boolean) : []),
         };
         dispatch(setCurrentPost(mappedPost));
       } catch (err) {
@@ -179,6 +189,11 @@ const PostDetail = () => {
     const fetchPost = async () => {
       try {
         const postData = await getPostById(postId);
+        const baseWithoutApi2 = import.meta.env.VITE_API_BASE_URL?.replace('/api', '') || '';
+        const pickDisplayUrl2 = (u) => {
+          if (!u) return null;
+          return u.startsWith('http') ? u : `${baseWithoutApi2}${u}`;
+        };
         const mappedPost = {
           id: postData.id,
           title: postData.title,
@@ -196,6 +211,9 @@ const PostDetail = () => {
           mediaType: postData.mediaType 
             ? postData.mediaType.charAt(0) + postData.mediaType.slice(1).toLowerCase() 
             : 'Text',
+          mediaUrls: Array.isArray(postData.mediaUrls) 
+            ? postData.mediaUrls.map(pickDisplayUrl2).filter(Boolean)
+            : (postData.mediaUrls ? [pickDisplayUrl2(postData.mediaUrls)].filter(Boolean) : []),
         };
         dispatch(setCurrentPost(mappedPost));
       } catch (err) {
@@ -325,10 +343,66 @@ const PostDetail = () => {
         </CardHeader>
         <CardContent>
           {isAuthenticated ? (
-            <div className="prose prose-blue max-w-none">
-              {currentPost.content.split("\n").map((paragraph, index) => (
-                <p key={index}>{paragraph}</p>
-              ))}
+            <div className="space-y-4">
+              {/* Media Display - Show carousel when media exists */}
+              {currentPost.mediaUrls && currentPost.mediaUrls.length > 0 && currentPost.mediaType !== 'Text' && (
+                <div className="mb-6">
+                  {currentPost.mediaType === 'Image' && (
+                    <Carousel
+                      items={currentPost.mediaUrls}
+                      renderItem={(url) => (
+                        <img
+                          src={url}
+                          alt={currentPost.title}
+                          className="w-full h-full object-cover"
+                          draggable={false}
+                          onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect fill="%23f0f0f0" width="400" height="300"/%3E%3Ctext fill="%23999" x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle"%3EImage not found%3C/text%3E%3C/svg%3E';
+                          }}
+                        />
+                      )}
+                      className="overflow-hidden rounded-lg"
+                    />
+                  )}
+                  
+                  {currentPost.mediaType === 'Audio' && currentPost.mediaUrls[0] && (
+                    <div className="mb-6 overflow-hidden rounded-lg">
+                      <audio
+                        controls
+                        className="w-full"
+                        src={currentPost.mediaUrls[0]}
+                      >
+                        Your browser does not support the audio element.
+                      </audio>
+                    </div>
+                  )}
+                  
+                  {currentPost.mediaType === 'Video' && (
+                    <Carousel
+                      items={currentPost.mediaUrls}
+                      renderItem={(url) => (
+                        <video
+                          controls
+                          className="w-full h-full object-cover"
+                          draggable={false}
+                          src={url}
+                        >
+                          Your browser does not support the video element.
+                        </video>
+                      )}
+                      className="overflow-hidden rounded-lg"
+                    />
+                  )}
+                </div>
+              )}
+              
+              {/* Post Content */}
+              <div className="prose prose-blue max-w-none">
+                {currentPost.content.split("\n").map((paragraph, index) => (
+                  <p key={index}>{paragraph}</p>
+                ))}
+              </div>
             </div>
           ) : (
             <div>

@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { TextAlignStart, Image, ListMusic, SquarePlay } from 'lucide-react';
+import { TextAlignStart, Image, ListMusic, SquarePlay, Upload } from 'lucide-react';
 import Modal from './ui/Modal';
 import ConfirmDialog from './ui/ConfirmDialog';
+import MediaUploadModal from './MediaUploadModal';
 import { Button } from './ui/Button';
 import { Input } from './ui/Input';
 import { updatePost } from '../api/posts';
@@ -11,6 +12,10 @@ const EditPostModal = ({ isOpen, onClose, post, onPostUpdated, onPostDeleted }) 
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [mediaType, setMediaType] = useState('Text');
+  const [mediaUrl, setMediaUrl] = useState(''); // display only
+  const [mediaUrls, setMediaUrls] = useState([]); // submission array
+  const [mediaFileNames, setMediaFileNames] = useState([]);
+  const [showMediaUpload, setShowMediaUpload] = useState(false);
   const [showSaveConfirm, setShowSaveConfirm] = useState(false);
   const [showDiscardConfirm, setShowDiscardConfirm] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -21,6 +26,7 @@ const EditPostModal = ({ isOpen, onClose, post, onPostUpdated, onPostDeleted }) 
     title: '',
     content: '',
     mediaType: 'Text',
+    mediaUrl: '',
   });
 
   // Initialize form with post data when modal opens
@@ -29,10 +35,28 @@ const EditPostModal = ({ isOpen, onClose, post, onPostUpdated, onPostDeleted }) 
       setTitle(post.title || '');
       setContent(post.content || '');
       setMediaType(post.mediaType || 'Text');
+      // Normalize incoming media URLs (string or array)
+      if (post.mediaType && post.mediaType !== 'Text') {
+        const incoming = post.mediaUrls;
+        if (Array.isArray(incoming)) {
+          setMediaUrls(incoming);
+          setMediaUrl(incoming[0] || '');
+        } else if (typeof incoming === 'string' && incoming) {
+          setMediaUrls([incoming]);
+          setMediaUrl(incoming);
+        } else {
+          setMediaUrls([]);
+          setMediaUrl('');
+        }
+      } else {
+        setMediaUrls([]);
+        setMediaUrl('');
+      }
       setOriginalValues({
         title: post.title || '',
         content: post.content || '',
         mediaType: post.mediaType || 'Text',
+        mediaUrl: Array.isArray(post.mediaUrls) ? (post.mediaUrls[0] || '') : (post.mediaUrls || ''),
       });
       setError(null);
     }
@@ -59,11 +83,18 @@ const EditPostModal = ({ isOpen, onClose, post, onPostUpdated, onPostDeleted }) 
     return (
       title.trim() !== originalValues.title ||
       content.trim() !== originalValues.content ||
-      mediaType !== originalValues.mediaType
+      mediaType !== originalValues.mediaType ||
+      mediaUrl.trim() !== originalValues.mediaUrl
     );
   };
 
   const handleSave = () => {
+    // Check if media is required but not provided
+    if (mediaType !== 'Text' && mediaUrls.length === 0) {
+      setError(`Please upload ${mediaType.toLowerCase()} before saving`);
+      return;
+    }
+    
     setError(null);
     setShowSaveConfirm(true);
   };
@@ -78,7 +109,7 @@ const EditPostModal = ({ isOpen, onClose, post, onPostUpdated, onPostDeleted }) 
         title: title.trim(),
         content: content.trim(),
         mediaType,
-        mediaUrl: null,
+        mediaUrl: mediaUrls.length > 0 ? mediaUrls : null,
       });
       
       console.log('Post updated successfully:', response);
@@ -106,6 +137,24 @@ const EditPostModal = ({ isOpen, onClose, post, onPostUpdated, onPostDeleted }) 
   const handleConfirmDiscard = () => {
     setShowDiscardConfirm(false);
     onClose();
+  };
+
+  const handleMediaSelected = (payload) => {
+    // Support both string URL and object { url, urls, filenames }
+    if (typeof payload === 'string') {
+      setMediaUrl(payload);
+      setMediaUrls([payload]);
+      setMediaFileNames([]);
+    } else if (payload && typeof payload === 'object') {
+      setMediaUrl(payload.url || '');
+      setMediaUrls(Array.isArray(payload.urls) ? payload.urls : (payload.url ? [payload.url] : []));
+      setMediaFileNames(Array.isArray(payload.filenames) ? payload.filenames : []);
+    }
+    setError(null);
+  };
+
+  const isMediaRequired = () => {
+    return mediaType !== 'Text';
   };
 
   const handleCancel = () => {
@@ -162,7 +211,14 @@ const EditPostModal = ({ isOpen, onClose, post, onPostUpdated, onPostDeleted }) 
                   key={type.label}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  onClick={() => setMediaType(type.label)}
+                  onClick={() => {
+                    setMediaType(type.label);
+                    // Clear media URL when changing to Text
+                    if (type.label === 'Text') {
+                      setMediaUrl('');
+                      setMediaUrls([]);
+                    }
+                  }}
                   className={`flex items-center gap-2 px-4 py-2 rounded-md border transition-all ${
                     mediaType === type.label
                       ? 'bg-blue-600 text-white border-blue-600'
@@ -175,6 +231,38 @@ const EditPostModal = ({ isOpen, onClose, post, onPostUpdated, onPostDeleted }) 
               ))}
             </div>
           </div>
+
+          {/* Media Upload Section - Show when non-Text media type is selected */}
+          {isMediaRequired() && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                {mediaType} Upload <span className="text-red-500">*</span>
+              </label>
+              <div className="flex items-center gap-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setShowMediaUpload(true)}
+                  className="flex items-center gap-2"
+                >
+                  <Upload className="h-4 w-4" />
+                  {mediaUrl ? 'Change' : 'Upload'} {mediaType}
+                </Button>
+                {mediaUrl && (
+                  <span className="text-sm text-green-600 flex items-center gap-1">
+                    ✓ {mediaType} uploaded
+                  </span>
+                )}
+              </div>
+              {mediaFileNames.length > 0 && (
+                <ul className="text-sm text-gray-700 mt-2 list-disc list-inside space-y-1">
+                  {mediaFileNames.map((name, idx) => (
+                    <li key={idx} className="break-words">{name}</li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
 
           {/* Error Message */}
           {error && (
@@ -225,6 +313,14 @@ const EditPostModal = ({ isOpen, onClose, post, onPostUpdated, onPostDeleted }) 
         confirmText="Discard"
         cancelText="Cancel"
         confirmVariant="danger"
+      />
+
+      {/* Media Upload Modal */}
+      <MediaUploadModal
+        isOpen={showMediaUpload}
+        onClose={() => setShowMediaUpload(false)}
+        onMediaSelected={handleMediaSelected}
+        mediaType={mediaType}
       />
     </>
   );

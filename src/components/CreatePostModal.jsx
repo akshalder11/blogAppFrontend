@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { TextAlignStart, Image, ListMusic, SquarePlay } from 'lucide-react';
+import { TextAlignStart, Image, ListMusic, SquarePlay, Upload } from 'lucide-react';
 import Modal from './ui/Modal';
 import ConfirmDialog from './ui/ConfirmDialog';
+import MediaUploadModal from './MediaUploadModal';
 import { Button } from './ui/Button';
 import { Input } from './ui/Input';
 import { createPost } from '../api/posts';
@@ -11,6 +12,10 @@ const CreatePostModal = ({ isOpen, onClose, initialMediaType = 'Text', onPostCre
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [mediaType, setMediaType] = useState(initialMediaType);
+  const [mediaUrl, setMediaUrl] = useState('');
+  const [mediaUrls, setMediaUrls] = useState([]);
+  const [mediaFileNames, setMediaFileNames] = useState([]);
+  const [showMediaUpload, setShowMediaUpload] = useState(false);
   const [showPostConfirm, setShowPostConfirm] = useState(false);
   const [showDiscardConfirm, setShowDiscardConfirm] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -32,6 +37,12 @@ const CreatePostModal = ({ isOpen, onClose, initialMediaType = 'Text', onPostCre
   ];
 
   const handlePost = () => {
+    // Check if media is required but not provided
+    if (mediaType !== 'Text' && mediaUrls.length === 0) {
+      setError(`Please upload ${mediaType.toLowerCase()} before posting`);
+      return;
+    }
+    
     setError(null);
     setShowPostConfirm(true);
   };
@@ -45,7 +56,7 @@ const CreatePostModal = ({ isOpen, onClose, initialMediaType = 'Text', onPostCre
         title: title.trim(),
         content: content.trim(),
         mediaType,
-        mediaUrl: null, // Future enhancement for media uploads
+        mediaUrl: mediaUrls.length > 0 ? mediaUrls : null,
       });
       
       console.log('Post created successfully:', response);
@@ -80,8 +91,29 @@ const CreatePostModal = ({ isOpen, onClose, initialMediaType = 'Text', onPostCre
     setTitle('');
     setContent('');
     setMediaType(initialMediaType);
+    setMediaUrl('');
+    setMediaUrls([]);
+    setMediaFileNames([]);
     setError(null);
     setIsSubmitting(false);
+  };
+
+  const handleMediaSelected = (payload) => {
+    // Support both string URL and object { url, urls, filenames }
+    if (typeof payload === 'string') {
+      setMediaUrl(payload);
+      setMediaUrls([payload]);
+      setMediaFileNames([]);
+    } else if (payload && typeof payload === 'object') {
+      setMediaUrl(payload.url || '');
+      setMediaUrls(Array.isArray(payload.urls) ? payload.urls : (payload.url ? [payload.url] : []));
+      setMediaFileNames(Array.isArray(payload.filenames) ? payload.filenames : []);
+    }
+    setError(null);
+  };
+
+  const isMediaRequired = () => {
+    return mediaType !== 'Text';
   };
 
   return (
@@ -129,7 +161,15 @@ const CreatePostModal = ({ isOpen, onClose, initialMediaType = 'Text', onPostCre
                   key={type.label}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  onClick={() => setMediaType(type.label)}
+                  onClick={() => {
+                    setMediaType(type.label);
+                    // Clear media URL when changing type
+                    if (type.label === 'Text') {
+                      setMediaUrl('');
+                      setMediaUrls([]);
+                      setMediaFileNames([]);
+                    }
+                  }}
                   className={`flex items-center gap-2 px-4 py-2 rounded-md border cursor-pointer transition-all ${
                     mediaType === type.label
                       ? 'bg-blue-600 text-white border-blue-600'
@@ -142,6 +182,38 @@ const CreatePostModal = ({ isOpen, onClose, initialMediaType = 'Text', onPostCre
               ))}
             </div>
           </div>
+
+          {/* Media Upload Section - Show when non-Text media type is selected */}
+          {isMediaRequired() && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                {mediaType} Upload <span className="text-red-500">*</span>
+              </label>
+              <div className="flex items-center gap-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setShowMediaUpload(true)}
+                  className="flex items-center gap-2"
+                >
+                  <Upload className="h-4 w-4" />
+                  {mediaUrl ? 'Change' : 'Upload'} {mediaType}
+                </Button>
+                {mediaUrl && (
+                  <span className="text-sm text-green-600 flex items-center gap-1">
+                    ✓ {mediaType} uploaded
+                  </span>
+                )}
+              </div>
+              {mediaFileNames.length > 0 && (
+                <ul className="text-sm text-gray-700 mt-2 list-disc list-inside space-y-1">
+                  {mediaFileNames.map((name, idx) => (
+                    <li key={idx} className="break-words">{name}</li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
 
           {/* Error Message */}
           {error && (
@@ -163,7 +235,7 @@ const CreatePostModal = ({ isOpen, onClose, initialMediaType = 'Text', onPostCre
             <Button
               onClick={handlePost}
               className="px-6 bg-blue-600 hover:bg-blue-700"
-              disabled={!title.trim() || !content.trim() || isSubmitting}
+              disabled={!title.trim() || !content.trim() || (mediaType !== 'Text' && mediaUrls.length === 0) || isSubmitting}
             >
               {isSubmitting ? 'Posting...' : 'Post'}
             </Button>
@@ -192,6 +264,14 @@ const CreatePostModal = ({ isOpen, onClose, initialMediaType = 'Text', onPostCre
         confirmText="Discard"
         cancelText="Keep Editing"
         confirmVariant="danger"
+      />
+
+      {/* Media Upload Modal */}
+      <MediaUploadModal
+        isOpen={showMediaUpload}
+        onClose={() => setShowMediaUpload(false)}
+        onMediaSelected={handleMediaSelected}
+        mediaType={mediaType}
       />
     </>
   );

@@ -28,7 +28,7 @@ export const createPost = async ({ title, content, mediaType, mediaUrl = null })
     title, 
     content, 
     mediaType: mediaType.toUpperCase(), 
-    mediaUrl,
+    mediaUrls: mediaUrl,
   }, { 
     auth: true,
     attachUser: true,
@@ -42,7 +42,7 @@ export const updatePost = async ({ postId, title, content, mediaType, mediaUrl =
     title, 
     content, 
     mediaType: mediaType.toUpperCase(), 
-    mediaUrl,
+    mediaUrls: mediaUrl,
   }, { 
     auth: true,
     attachUser: false,
