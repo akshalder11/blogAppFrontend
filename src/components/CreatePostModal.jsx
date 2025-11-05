@@ -31,8 +31,8 @@ const CreatePostModal = ({ isOpen, onClose, initialMediaType = 'Text', onPostCre
   const mediaTypes = [
     { label: 'Text', icon: <TextAlignStart className="w-4 h-4" /> },
     { label: 'Image', icon: <Image className="w-4 h-4" /> },
-    { label: 'Audio', icon: <ListMusic className="w-4 h-4" /> },
-    { label: 'Video', icon: <SquarePlay className="w-4 h-4" /> },
+    // { label: 'Audio', icon: <ListMusic className="w-4 h-4" /> },
+    // { label: 'Video', icon: <SquarePlay className="w-4 h-4" /> },
   ];
 
   const handlePost = () => {
