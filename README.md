@@ -1,16 +1,78 @@
-# React + Vite
+# BlogApp Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**Production URL:** [https://akshalder11-blogapp.netlify.app/](https://akshalder11-blogapp.netlify.app/)
 
-Currently, two official plugins are available:
+A modern, full-featured blogging platform built with React, Redux, Vite, and Tailwind CSS. Hosted on Netlify.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Features
 
-## React Compiler
+- 📝 **Create, Edit, Delete Posts**
+- 🖼️ **Image Uploads & Carousel** (with instant caching and smooth transitions)
+- 🔒 **Authentication** (Sign Up, Login, Logout)
+- 👍👎 **Like/Dislike & Reactions**
+- 🛠️ **Centralized Error Handling** (minimal white toast notifications)
+- 🚦 **Splash Screen** (with countdown, status, and retry logic)
+- 📦 **Media Uploads** (currently supports images)
+- 🧑‍💻 **Responsive UI** (mobile & desktop)
+- ⚡ **Fast SPA Routing** (React Router, Netlify redirects)
+- 🛡️ **API Health Check** (with backend spin-up countdown)
+- 🟢 **Optimistic UI Updates** (for likes/dislikes)
+- 🎨 **Minimal, Modern Design** (Tailwind CSS, Framer Motion)
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Tech Stack
 
-## Expanding the ESLint configuration
+- **React 19**
+- **Redux Toolkit**
+- **Vite**
+- **Tailwind CSS**
+- **Framer Motion**
+- **Sonner (Toast notifications)**
+- **Lucide Icons**
+- **Moment.js**
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Hosting & Deployment
+
+- **Netlify** (with SPA support via `_redirects`)
+- **Backend**: Connects to a REST API (see `.env` for API base URL)
+
+## How It Works
+
+- **Home Page**: View all posts, create new posts (Text/Image)
+- **Post Detail**: View full post, like/dislike, edit/delete (if author)
+- **Media Carousel**: All images are preloaded and cached for instant navigation
+- **Authentication**: Required for creating, editing, liking, or viewing restricted posts
+- **Splash Screen**: Shows backend status, countdown, and retry logic on app load
+- **Error Handling**: All API errors are shown as minimal white toasts (never inline)
+- **SPA Routing**: All routes handled client-side; Netlify `_redirects` ensures reloads work
+
+## Getting Started
+
+1. **Clone the repo**
+2. `npm install`
+3. `npm run dev`
+4. Set your API base URL in `.env`
+5. Deploy to Netlify (make sure `public/_redirects` is present)
+
+## Folder Structure
+
+```
+blogapp-frontend/
+├── public/
+│   └── _redirects
+├── src/
+│   ├── api/
+│   ├── app/
+│   ├── assets/
+│   ├── components/
+│   ├── features/
+│   ├── hooks/
+│   ├── layouts/
+│   ├── lib/
+│   ├── pages/
+│   ├── router/
+│   └── utils/
+├── package.json
+├── vite.config.js
+└── README.md
+```
+
