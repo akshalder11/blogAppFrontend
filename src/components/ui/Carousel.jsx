@@ -20,6 +20,7 @@ const Carousel = ({ items = [], renderItem, className = '' }) => {
   const [direction, setDirection] = useState(1);
   const [allImagesLoaded, setAllImagesLoaded] = useState(false);
   const [loadingProgress, setLoadingProgress] = useState(0);
+  const [loadedIndices, setLoadedIndices] = useState(new Set());
 
   // Preload ALL images at once and track progress
   useEffect(() => {
@@ -41,16 +42,18 @@ const Carousel = ({ items = [], renderItem, className = '' }) => {
     const totalImages = imageUrls.length;
     const imagePromises = [];
 
-    imageUrls.forEach((url) => {
-      const promise = new Promise((resolve, reject) => {
+    imageUrls.forEach((url, index) => {
+      const promise = new Promise((resolve) => {
         const img = new Image();
         img.onload = () => {
           loadedCount++;
+          setLoadedIndices(prev => new Set([...prev, index]));
           setLoadingProgress(Math.round((loadedCount / totalImages) * 100));
           resolve();
         };
         img.onerror = () => {
           loadedCount++;
+          setLoadedIndices(prev => new Set([...prev, index]));
           setLoadingProgress(Math.round((loadedCount / totalImages) * 100));
           resolve(); // Still resolve to not block other images
         };
@@ -144,36 +147,35 @@ const Carousel = ({ items = [], renderItem, className = '' }) => {
           )}
           {/* Carousel Container */}
           <div className="relative overflow-hidden rounded-lg bg-gray-100 h-64 sm:h-80 md:h-96">
-            <AnimatePresence initial={false} mode="wait">
-              <motion.div
-                key={currentIndex}
-                variants={fadeVariants}
-                initial="enter"
-                animate="center"
-                exit="exit"
-                transition={{
-                  opacity: { duration: 0.35, ease: 'easeInOut' },
-                }}
+            {/* Render ALL items but only show the current one - this ensures browser caching */}
+            {items.map((item, index) => (
+              <div
+                key={index}
                 className="absolute inset-0 w-full h-full"
-                style={{ willChange: 'opacity' }}
+                style={{
+                  visibility: index === currentIndex ? 'visible' : 'hidden',
+                  opacity: index === currentIndex ? 1 : 0,
+                  transition: 'opacity 0.35s ease-in-out',
+                  pointerEvents: index === currentIndex ? 'auto' : 'none',
+                }}
               >
-                {renderItem(items[currentIndex], currentIndex)}
-              </motion.div>
-            </AnimatePresence>
+                {renderItem(item, index)}
+              </div>
+            ))}
 
             {/* Navigation Buttons - Only show if more than 1 item */}
             {items.length > 1 && (
               <>
                 <button
                   onClick={goToPrevious}
-                  className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 transition-all backdrop-blur-sm cursor-pointer"
+                  className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 transition-all backdrop-blur-sm cursor-pointer z-10"
                   aria-label="Previous"
                 >
                   <ChevronLeft className="h-6 w-6" />
                 </button>
                 <button
                   onClick={goToNext}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 transition-all backdrop-blur-sm cursor-pointer"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 transition-all backdrop-blur-sm cursor-pointer z-10"
                   aria-label="Next"
                 >
                   <ChevronRight className="h-6 w-6" />
