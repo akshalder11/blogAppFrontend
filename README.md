@@ -76,3 +76,30 @@ blogapp-frontend/
 └── README.md
 ```
 
+## AI-Powered Development
+
+This project leverages cutting-edge AI tools to accelerate development and improve code quality:
+
+### 🤖 AI Tools Used
+
+- **ChatGPT** - For architectural decisions, problem-solving, and generating complex logic
+- **GitHub Copilot** - For intelligent code completion, reducing boilerplate code, and speeding up development
+
+### 🚀 Benefits
+
+- **10x Faster Development** - AI-assisted coding reduced development time significantly
+- **Reduced Boilerplate** - Auto-generated Redux slices, API handlers, and component scaffolding
+- **Better Code Quality** - AI suggestions helped implement best practices and optimize performance
+- **Instant Problem Solving** - Quick debugging and troubleshooting with AI assistance
+- **Enhanced Productivity** - Focus on business logic while AI handles repetitive tasks
+
+### 💡 Key AI Contributions
+
+- Component architecture and state management patterns
+- Error handling strategies and toast notification system
+- Image caching and carousel optimization logic
+- API client setup with centralized error handling
+- Responsive UI design with Tailwind CSS utilities
+
+> **Note**: AI tools were used as coding assistants to enhance productivity. All code was reviewed, tested, and customized to meet project requirements.
+
