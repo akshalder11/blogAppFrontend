@@ -72,8 +72,8 @@ const EditPostModal = ({ isOpen, onClose, post, onPostUpdated, onPostDeleted }) 
   const mediaTypes = [
     { label: 'Text', icon: <TextAlignStart className="w-4 h-4" /> },
     { label: 'Image', icon: <Image className="w-4 h-4" /> },
-    { label: 'Audio', icon: <ListMusic className="w-4 h-4" /> },
-    { label: 'Video', icon: <SquarePlay className="w-4 h-4" /> },
+    // { label: 'Audio', icon: <ListMusic className="w-4 h-4" /> },
+    // { label: 'Video', icon: <SquarePlay className="w-4 h-4" /> },
   ];
 
   // Check if form has been modified
