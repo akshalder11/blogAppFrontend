@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { motion } from "framer-motion";
 import { ThumbsUp, ThumbsDown, Pencil, Trash2 } from "lucide-react";
 import moment from "moment";
+import Lottie from "lottie-react";
 import { Button } from "../components/ui/Button";
 import ConfirmDialog from "../components/ui/ConfirmDialog";
 import EditPostModal from "../components/EditPostModal";
@@ -20,6 +21,7 @@ import { setCurrentPost, toggleLike, toggleDislike } from "../features/posts/pos
 import { getPostById, deletePost } from "../api/posts";
 import { reactToPost, removeReaction } from "../api/reactions";
 import PostDetailSkeleton from "../components/ui/PostDetailSkeleton";
+import warningAnimation from "../assets/animations/warning.json";
 
 const fadeIn = {
   hidden: { opacity: 0, y: 20 },
@@ -37,10 +39,12 @@ const PostDetail = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [isReacting, setIsReacting] = useState(false);
+  const [is403Error, setIs403Error] = useState(false);
 
   useEffect(() => {
     const fetchPost = async () => {
       setLoading(true);
+      setIs403Error(false);
       try {
         const postData = await getPostById(postId);
         // Map API data to frontend-friendly structure
@@ -74,6 +78,10 @@ const PostDetail = () => {
         };
         dispatch(setCurrentPost(mappedPost));
       } catch (err) {
+        // Check if it's a 403 error
+        if (err.response && err.response.status === 403) {
+          setIs403Error(true);
+        }
         // Error already shown via toast
       } finally {
         setLoading(false);
@@ -273,6 +281,41 @@ const PostDetail = () => {
 
   if (loading) {
     return <PostDetailSkeleton />;
+  }
+
+  if (is403Error) {
+    return (
+      <motion.div
+        variants={fadeIn}
+        initial="hidden"
+        animate="show"
+        className="mx-auto max-w-3xl py-8"
+      >
+        <Card>
+          <CardContent className="flex flex-col items-center justify-center py-12 text-center">
+            <div className="w-64 h-64 mb-6">
+              <Lottie 
+                animationData={warningAnimation} 
+                loop={true}
+                autoplay={true}
+              />
+            </div>
+            <h2 className="text-2xl font-semibold text-gray-800 mb-3">
+              Login to check out the post
+            </h2>
+            <p className="text-gray-600 mb-6 max-w-md">
+              You need to be logged in to view this content. Please sign in to continue.
+            </p>
+            <Button
+              onClick={() => navigate("/login")}
+              className="px-6 py-2"
+            >
+              Go to Login
+            </Button>
+          </CardContent>
+        </Card>
+      </motion.div>
+    );
   }
 
   if (!currentPost) {
