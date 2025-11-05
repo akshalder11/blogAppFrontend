@@ -33,17 +33,14 @@ const PostDetail = () => {
   const { currentPost } = useSelector((state) => state.posts);
   const { isAuthenticated, user } = useSelector((state) => state.auth);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [isReacting, setIsReacting] = useState(false);
-  const [reactionError, setReactionError] = useState(null);
 
   useEffect(() => {
     const fetchPost = async () => {
       setLoading(true);
-      setError(null);
       try {
         const postData = await getPostById(postId);
         // Map API data to frontend-friendly structure
@@ -77,7 +74,7 @@ const PostDetail = () => {
         };
         dispatch(setCurrentPost(mappedPost));
       } catch (err) {
-        setError(err.message);
+        // Error already shown via toast
       } finally {
         setLoading(false);
       }
@@ -98,7 +95,6 @@ const PostDetail = () => {
     const wasDisliked = currentPost.isDisliked;
     
     try {
-      setReactionError(null);
       
       // Optimistic UI update - update immediately
       dispatch(toggleLike(currentPost.id));
@@ -114,7 +110,7 @@ const PostDetail = () => {
       // API succeeded - keep the optimistic update
     } catch (e) {
       console.error('Failed to like post:', e);
-      setReactionError(e.message || 'Failed to like post');
+      // Error already shown via toast
       
       // Rollback: revert to previous state
       if (wasLiked) {
@@ -145,7 +141,6 @@ const PostDetail = () => {
     const wasDisliked = currentPost.isDisliked;
     
     try {
-      setReactionError(null);
       
       // Optimistic UI update - update immediately
       dispatch(toggleDislike(currentPost.id));
@@ -161,7 +156,7 @@ const PostDetail = () => {
       // API succeeded - keep the optimistic update
     } catch (e) {
       console.error('Failed to dislike post:', e);
-      setReactionError(e.message || 'Failed to dislike post');
+      // Error already shown via toast
       
       // Rollback: revert to previous state
       if (wasDisliked) {
@@ -230,7 +225,6 @@ const PostDetail = () => {
 
   const handleDeleteConfirm = async () => {
     setIsDeleting(true);
-    setError(null);
     
     try {
       await deletePost(currentPost.id);
@@ -239,7 +233,7 @@ const PostDetail = () => {
       navigate("/");
     } catch (err) {
       console.error("Failed to delete post:", err);
-      setError(err.message);
+      // Error already shown via toast
       setShowDeleteConfirm(false);
     } finally {
       setIsDeleting(false);
@@ -279,10 +273,6 @@ const PostDetail = () => {
 
   if (loading) {
     return <PostDetailSkeleton />;
-  }
-
-  if (error) {
-    return <div className="text-center text-red-500 py-8">{error}</div>;
   }
 
   if (!currentPost) {
@@ -442,9 +432,6 @@ const PostDetail = () => {
             <ThumbsDown className="mr-2 h-4 w-4" />
             {currentPost.dislikes} {currentPost.dislikes === 1 ? "Dislike" : "Dislikes"}
           </Button>
-          {reactionError && (
-            <div className="basis-full text-sm text-red-600">{reactionError}</div>
-          )}
         </CardFooter>
       </Card>
 

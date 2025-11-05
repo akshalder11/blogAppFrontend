@@ -42,7 +42,7 @@ const groupVariants = {
 const Login = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { loading, error } = useSelector((state) => state.auth);
+  const { loading } = useSelector((state) => state.auth);
 
   const {
     register,
@@ -146,9 +146,6 @@ const Login = () => {
               )}
             </div>
           </motion.div>
-
-          {/* Error Message */}
-          {error && <p className="text-sm text-red-500">{error}</p>}
 
           {/* Animated Button */}
           <motion.div variants={itemVariants}>

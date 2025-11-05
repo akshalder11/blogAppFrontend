@@ -43,7 +43,7 @@ const dropdownVariants = {
 
 const Home = () => {
   const dispatch = useDispatch();
-  const { posts, loading, error } = useSelector((state) => state.posts);
+  const { posts, loading } = useSelector((state) => state.posts);
   const { isAuthenticated } = useSelector((state) => state.auth);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -95,6 +95,7 @@ const Home = () => {
     } catch (err) {
       const errorMessage = err?.response?.data?.error || err.message;
       dispatch(fetchPostsFailure(errorMessage));
+      // Error already shown via toast
     }
   };
 
@@ -106,12 +107,8 @@ const Home = () => {
       }
     };
     document.addEventListener("click", handleClickOutside);
-    return () => document.removeEventListener("click", handleClickOutside);
+    document.removeEventListener("click", handleClickOutside);
   }, []);
-
-  if (error) {
-    return <div className="text-center text-red-500 py-8">{error}</div>;
-  }
 
   const postOptions = [
     { label: "Text", icon: <TextAlignStart className="w-4 h-4" /> },

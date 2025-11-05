@@ -19,7 +19,6 @@ const EditPostModal = ({ isOpen, onClose, post, onPostUpdated, onPostDeleted }) 
   const [showSaveConfirm, setShowSaveConfirm] = useState(false);
   const [showDiscardConfirm, setShowDiscardConfirm] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState(null);
 
   // Store original values to detect changes
   const [originalValues, setOriginalValues] = useState({
@@ -58,7 +57,6 @@ const EditPostModal = ({ isOpen, onClose, post, onPostUpdated, onPostDeleted }) 
         mediaType: post.mediaType || 'Text',
         mediaUrl: Array.isArray(post.mediaUrls) ? (post.mediaUrls[0] || '') : (post.mediaUrls || ''),
       });
-      setError(null);
     }
   }, [isOpen, post]);
 
@@ -91,17 +89,14 @@ const EditPostModal = ({ isOpen, onClose, post, onPostUpdated, onPostDeleted }) 
   const handleSave = () => {
     // Check if media is required but not provided
     if (mediaType !== 'Text' && mediaUrls.length === 0) {
-      setError(`Please upload ${mediaType.toLowerCase()} before saving`);
       return;
     }
     
-    setError(null);
     setShowSaveConfirm(true);
   };
 
   const handleConfirmSave = async () => {
     setIsSubmitting(true);
-    setError(null);
     
     try {
       const response = await updatePost({
@@ -122,7 +117,7 @@ const EditPostModal = ({ isOpen, onClose, post, onPostUpdated, onPostDeleted }) 
       }
     } catch (err) {
       console.error('Failed to update post:', err);
-      setError(err.message);
+      // Error already shown via toast
       setShowSaveConfirm(false);
     } finally {
       setIsSubmitting(false);
@@ -130,7 +125,6 @@ const EditPostModal = ({ isOpen, onClose, post, onPostUpdated, onPostDeleted }) 
   };
 
   const handleDiscard = () => {
-    setError(null);
     setShowDiscardConfirm(true);
   };
 
@@ -150,7 +144,6 @@ const EditPostModal = ({ isOpen, onClose, post, onPostUpdated, onPostDeleted }) 
       setMediaUrls(Array.isArray(payload.urls) ? payload.urls : (payload.url ? [payload.url] : []));
       setMediaFileNames(Array.isArray(payload.filenames) ? payload.filenames : []);
     }
-    setError(null);
   };
 
   const isMediaRequired = () => {
@@ -261,13 +254,6 @@ const EditPostModal = ({ isOpen, onClose, post, onPostUpdated, onPostDeleted }) 
                   ))}
                 </ul>
               )}
-            </div>
-          )}
-
-          {/* Error Message */}
-          {error && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-md">
-              <p className="text-sm text-red-600">{error}</p>
             </div>
           )}
 

@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { toast } from 'sonner';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -83,7 +84,17 @@ const request = async (
         status: err.response?.status,
       });
     }
-    throw new Error(normalizeError(err, fallbackMessage));
+    
+    // Show error toast only if not during initial loading
+    const errorMessage = normalizeError(err, fallbackMessage);
+    
+    // Check if we're still on splash screen by checking if main app is rendered
+    const isAppLoaded = document.querySelector('[data-app-loaded="true"]');
+    if (isAppLoaded) {
+      toast.error(errorMessage);
+    }
+    
+    throw new Error(errorMessage);
   }
 };
 

@@ -50,7 +50,7 @@ const groupVariants = {
 const SignUp = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { loading, error } = useSelector((state) => state.auth);
+  const { loading } = useSelector((state) => state.auth);
 
   const {
     register,
@@ -177,8 +177,6 @@ const SignUp = () => {
               )}
             </div>
           </motion.div>
-
-          {error && <p className="text-sm text-red-500">{error}</p>}
 
           {/* Button */}
           <motion.div variants={itemVariants}>

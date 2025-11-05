@@ -11,24 +11,20 @@ const MediaUploadModal = ({ isOpen, onClose, onMediaSelected, mediaType = 'Image
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [mediaUrl, setMediaUrl] = useState('');
   const [isUploading, setIsUploading] = useState(false);
-  const [error, setError] = useState(null);
 
   // (Removed file size checks and client-side compression per request)
 
   const handleFileSelect = (e) => {
     const files = Array.from(e.target.files || []);
     setSelectedFiles(files);
-    setError(null);
   };
 
   const handleUpload = async () => {
     if (selectedFiles.length === 0) {
-      setError('Please select at least one file');
       return;
     }
 
     setIsUploading(true);
-    setError(null);
 
     try {
       const response = await uploadMedia(selectedFiles);
@@ -45,11 +41,11 @@ const MediaUploadModal = ({ isOpen, onClose, onMediaSelected, mediaType = 'Image
         });
         handleClose();
       } else {
-        setError('No media URLs returned from server');
+        // Error will be shown via toast from API
       }
     } catch (err) {
       console.error('Upload failed:', err);
-      setError(err.message || 'Failed to upload media');
+      // Error already shown via toast
     } finally {
       setIsUploading(false);
     }
@@ -57,7 +53,6 @@ const MediaUploadModal = ({ isOpen, onClose, onMediaSelected, mediaType = 'Image
 
   const handleUrlSubmit = () => {
     if (!mediaUrl.trim()) {
-      setError('Please enter a valid URL');
       return;
     }
 
@@ -67,14 +62,13 @@ const MediaUploadModal = ({ isOpen, onClose, onMediaSelected, mediaType = 'Image
       onMediaSelected({ url: mediaUrl.trim(), urls: [mediaUrl.trim()], filenames: [] });
       handleClose();
     } catch {
-      setError('Please enter a valid URL (e.g., https://example.com/image.jpg)');
+      // Invalid URL - will show via toast
     }
   };
 
   const handleClose = () => {
     setSelectedFiles([]);
     setMediaUrl('');
-    setError(null);
     setActiveTab('upload');
     onClose();
   };
@@ -218,7 +212,6 @@ const MediaUploadModal = ({ isOpen, onClose, onMediaSelected, mediaType = 'Image
                   value={mediaUrl}
                   onChange={(e) => {
                     setMediaUrl(e.target.value);
-                    setError(null);
                   }}
                   className="w-full"
                 />
@@ -238,13 +231,6 @@ const MediaUploadModal = ({ isOpen, onClose, onMediaSelected, mediaType = 'Image
             </motion.div>
           )}
         </AnimatePresence>
-
-        {/* Error Message */}
-        {error && (
-          <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-md">
-            <p className="text-sm text-red-600">{error}</p>
-          </div>
-        )}
       </div>
     </Modal>
   );

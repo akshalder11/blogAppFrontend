@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { toast } from 'sonner';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -58,6 +59,10 @@ export const uploadMedia = async (files) => {
       err?.response?.data?.message ||
       err?.message ||
       'Failed to upload media';
+    
+    // Show error toast
+    toast.error(errorMessage);
+    
     throw new Error(errorMessage);
   }
 };

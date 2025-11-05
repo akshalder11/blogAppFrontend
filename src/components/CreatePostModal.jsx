@@ -19,7 +19,6 @@ const CreatePostModal = ({ isOpen, onClose, initialMediaType = 'Text', onPostCre
   const [showPostConfirm, setShowPostConfirm] = useState(false);
   const [showDiscardConfirm, setShowDiscardConfirm] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState(null);
   
   // Keep internal mediaType in sync with the latest selection passed from parent
   // and only update when the modal becomes open, so it reflects the user's
@@ -39,17 +38,14 @@ const CreatePostModal = ({ isOpen, onClose, initialMediaType = 'Text', onPostCre
   const handlePost = () => {
     // Check if media is required but not provided
     if (mediaType !== 'Text' && mediaUrls.length === 0) {
-      setError(`Please upload ${mediaType.toLowerCase()} before posting`);
       return;
     }
     
-    setError(null);
     setShowPostConfirm(true);
   };
 
   const handleConfirmPost = async () => {
     setIsSubmitting(true);
-    setError(null);
     
     try {
       const response = await createPost({
@@ -70,7 +66,7 @@ const CreatePostModal = ({ isOpen, onClose, initialMediaType = 'Text', onPostCre
       }
     } catch (err) {
       console.error('Failed to create post:', err);
-      setError(err.message);
+      // Error already shown via toast
       setShowPostConfirm(false);
     } finally {
       setIsSubmitting(false);
@@ -94,7 +90,6 @@ const CreatePostModal = ({ isOpen, onClose, initialMediaType = 'Text', onPostCre
     setMediaUrl('');
     setMediaUrls([]);
     setMediaFileNames([]);
-    setError(null);
     setIsSubmitting(false);
   };
 
@@ -109,7 +104,6 @@ const CreatePostModal = ({ isOpen, onClose, initialMediaType = 'Text', onPostCre
       setMediaUrls(Array.isArray(payload.urls) ? payload.urls : (payload.url ? [payload.url] : []));
       setMediaFileNames(Array.isArray(payload.filenames) ? payload.filenames : []);
     }
-    setError(null);
   };
 
   const isMediaRequired = () => {
@@ -212,13 +206,6 @@ const CreatePostModal = ({ isOpen, onClose, initialMediaType = 'Text', onPostCre
                   ))}
                 </ul>
               )}
-            </div>
-          )}
-
-          {/* Error Message */}
-          {error && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-md">
-              <p className="text-sm text-red-600">{error}</p>
             </div>
           )}
 
