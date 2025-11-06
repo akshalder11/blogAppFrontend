@@ -60,7 +60,6 @@ const Login = () => {
         password: data.password,
       };
       const response = await loginUser(payload);
-      console.log("Login successful:", response);
       // Extract necessary fields from response
       const userData = {
         id: response.id,

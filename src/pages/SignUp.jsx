@@ -66,8 +66,7 @@ const SignUp = () => {
         email: data.email,
         password: data.password,
       };
-      const response = await registerUser(payload);
-      console.log("Registration successful:", response);
+      await registerUser(payload);
       dispatch(loginSuccess(null));
       navigate("/registration-success");
     } catch (err) {

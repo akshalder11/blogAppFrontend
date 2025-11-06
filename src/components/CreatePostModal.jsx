@@ -48,14 +48,13 @@ const CreatePostModal = ({ isOpen, onClose, initialMediaType = 'Text', onPostCre
     setIsSubmitting(true);
     
     try {
-      const response = await createPost({
+      await createPost({
         title: title.trim(),
         content: content.trim(),
         mediaType,
         mediaUrl: mediaUrls.length > 0 ? mediaUrls : null,
       });
       
-      console.log('Post created successfully:', response);
       setShowPostConfirm(false);
       resetForm();
       onClose();
@@ -65,7 +64,6 @@ const CreatePostModal = ({ isOpen, onClose, initialMediaType = 'Text', onPostCre
         onPostCreated();
       }
     } catch (err) {
-      console.error('Failed to create post:', err);
       // Error already shown via toast
       setShowPostConfirm(false);
     } finally {

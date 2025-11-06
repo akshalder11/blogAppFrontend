@@ -44,7 +44,6 @@ const MediaUploadModal = ({ isOpen, onClose, onMediaSelected, mediaType = 'Image
         // Error will be shown via toast from API
       }
     } catch (err) {
-      console.error('Upload failed:', err);
       // Error already shown via toast
     } finally {
       setIsUploading(false);

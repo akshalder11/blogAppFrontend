@@ -99,7 +99,7 @@ const EditPostModal = ({ isOpen, onClose, post, onPostUpdated, onPostDeleted }) 
     setIsSubmitting(true);
     
     try {
-      const response = await updatePost({
+      await updatePost({
         postId: post.id,
         title: title.trim(),
         content: content.trim(),
@@ -107,7 +107,6 @@ const EditPostModal = ({ isOpen, onClose, post, onPostUpdated, onPostDeleted }) 
         mediaUrl: mediaUrls.length > 0 ? mediaUrls : null,
       });
       
-      console.log('Post updated successfully:', response);
       setShowSaveConfirm(false);
       onClose();
       
@@ -116,7 +115,6 @@ const EditPostModal = ({ isOpen, onClose, post, onPostUpdated, onPostDeleted }) 
         onPostUpdated();
       }
     } catch (err) {
-      console.error('Failed to update post:', err);
       // Error already shown via toast
       setShowSaveConfirm(false);
     } finally {

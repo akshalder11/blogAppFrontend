@@ -117,7 +117,6 @@ const PostDetail = () => {
       
       // API succeeded - keep the optimistic update
     } catch (e) {
-      console.error('Failed to like post:', e);
       // Error already shown via toast
       
       // Rollback: revert to previous state
@@ -163,7 +162,6 @@ const PostDetail = () => {
       
       // API succeeded - keep the optimistic update
     } catch (e) {
-      console.error('Failed to dislike post:', e);
       // Error already shown via toast
       
       // Rollback: revert to previous state
@@ -220,7 +218,7 @@ const PostDetail = () => {
         };
         dispatch(setCurrentPost(mappedPost));
       } catch (err) {
-        console.error('Failed to refresh post:', err);
+        // Error already shown via toast
       }
     };
     fetchPost();
@@ -236,11 +234,9 @@ const PostDetail = () => {
     
     try {
       await deletePost(currentPost.id);
-      console.log("Post deleted successfully");
       // Navigate to home after successful deletion
       navigate("/");
     } catch (err) {
-      console.error("Failed to delete post:", err);
       // Error already shown via toast
       setShowDeleteConfirm(false);
     } finally {
