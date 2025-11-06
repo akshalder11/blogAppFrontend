@@ -10,13 +10,7 @@ export default defineConfig({
   build: {
     // Optimize CSS delivery
     cssCodeSplit: false, // Bundle all CSS into one file
-    minify: 'terser',
-    terserOptions: {
-      compress: {
-        drop_console: true, // Remove console logs in production
-        drop_debugger: true,
-      },
-    },
+    minify: 'esbuild', // Use esbuild (default, faster than terser)
     rollupOptions: {
       output: {
         // Optimize chunk splitting
