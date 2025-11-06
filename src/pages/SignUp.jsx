@@ -227,7 +227,7 @@ const SignUp = () => {
           {/* Login Link */}
           <motion.p
             variants={itemVariants}
-            className="text-center text-sm text-gray-600"
+            className="text-center text-sm text-gray-700"
           >
             Already have an account?{" "}
             <Link

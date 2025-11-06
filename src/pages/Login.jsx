@@ -198,9 +198,9 @@ const Login = () => {
           {/* Link */}
           <motion.p
             variants={itemVariants}
-            className="text-center text-sm text-gray-600"
+            className="text-center text-sm text-gray-700"
           >
-            Don’t have an account?{" "}
+            Don't have an account?{" "}
             <Link
               to="/signup"
               className="font-medium text-blue-600 hover:text-blue-500"

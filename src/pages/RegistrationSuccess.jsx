@@ -34,7 +34,7 @@ const RegistrationSuccess = () => {
             <h1 className="text-2xl font-bold text-gray-900 mb-3">
               Registration Successful!
             </h1>
-            <p className="text-gray-600 mb-8">
+            <p className="text-gray-700 mb-8">
               Your account has been created successfully. You can now login to start using BlogApp.
             </p>
           </motion.div>

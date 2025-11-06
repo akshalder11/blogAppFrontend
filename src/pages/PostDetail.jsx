@@ -299,7 +299,7 @@ const PostDetail = () => {
             <h2 className="text-2xl font-semibold text-gray-800 mb-3">
               Login to check out the post
             </h2>
-            <p className="text-gray-600 mb-6 max-w-md">
+            <p className="text-gray-700 mb-6 max-w-md">
               You need to be logged in to view this content. Please sign in to continue.
             </p>
             <Button

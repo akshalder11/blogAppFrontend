@@ -55,7 +55,7 @@ const CardDescription = ({
 }) => {
   return (
     <p
-      className={cn('text-sm text-gray-500', className)}
+      className={cn('text-sm text-gray-700', className)}
       {...props}
     >
       {children}

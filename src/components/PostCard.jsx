@@ -40,13 +40,13 @@ const PostCard = ({ post, preview }) => {
                 />
               </div>
             )}
-            <p className="line-clamp-3 text-gray-600">
+            <p className="line-clamp-3 text-gray-700">
               {preview ? post.preview : post.content}
             </p>
           </CardContent>
 
           <CardFooter className="justify-between items-center">
-            <span className="text-sm text-gray-500">
+            <span className="text-sm text-gray-700">
               {moment(post.date).format("D MMM, YYYY")}
             </span>
 
