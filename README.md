@@ -18,6 +18,10 @@ A modern, full-featured blogging platform built with React, Redux, Vite, and Tai
 - 🛡️ **API Health Check** (with backend spin-up countdown)
 - 🟢 **Optimistic UI Updates** (for likes/dislikes)
 - 🎨 **Minimal, Modern Design** (Tailwind CSS, Framer Motion)
+- 🔍 **SEO Optimized** (meta tags, Open Graph, Twitter Cards, sitemap)
+- ♿ **Accessibility Compliant** (WCAG AAA, ARIA labels, semantic HTML)
+- 🔒 **Security Hardened** (CSP, COOP, HSTS, XSS protection)
+- ⚡ **Performance Optimized** (lazy loading, preconnect, aggressive caching)
 
 ## Tech Stack
 
@@ -103,3 +107,96 @@ This project leverages cutting-edge AI tools to accelerate development and impro
 
 > **Note**: AI tools were used as coding assistants to enhance productivity. All code was reviewed, tested, and customized to meet project requirements.
 
+## 🎯 Performance & Optimization
+
+This project is optimized for production with industry-standard best practices:
+
+### Lighthouse Scores (Target)
+
+- **Performance**: 85-95
+- **Accessibility**: 98-100 ✅
+- **Best Practices**: 90-100 ✅
+- **SEO**: 95-100 ✅
+
+### SEO Optimizations
+
+- ✅ Comprehensive meta tags (description, keywords, author)
+- ✅ Open Graph tags for social media sharing
+- ✅ Twitter Card meta tags
+- ✅ PWA manifest with theme colors
+- ✅ Robots.txt for search engine crawling
+- ✅ XML sitemap with all main pages
+- ✅ Preconnect hints for faster backend connections
+
+### Accessibility Features
+
+- ✅ WCAG AAA compliant color contrast (7:1 ratio)
+- ✅ Semantic HTML (nav, main, proper heading hierarchy)
+- ✅ ARIA labels and roles on all interactive elements
+- ✅ Keyboard navigation support
+- ✅ Focus indicators on all focusable elements
+- ✅ Alt text on all images
+
+### Security Headers
+
+All security headers configured via Netlify:
+
+- ✅ **Content Security Policy (CSP)** - Prevents XSS attacks
+- ✅ **Cross-Origin-Opener-Policy (COOP)** - Prevents cross-origin attacks
+- ✅ **X-Frame-Options** - Prevents clickjacking
+- ✅ **Strict-Transport-Security (HSTS)** - Forces HTTPS
+- ✅ **X-Content-Type-Options** - Prevents MIME sniffing
+- ✅ **X-XSS-Protection** - Browser XSS filter
+- ✅ **Referrer-Policy** - Controls referrer information
+- ✅ **Permissions-Policy** - Disables unnecessary browser features
+
+### Performance Optimizations
+
+- ✅ Image lazy loading with async decoding
+- ✅ CORS attributes for cross-origin images
+- ✅ Preload metadata for audio/video (not full files)
+- ✅ Single CSS bundle for better caching
+- ✅ Code splitting for vendor libraries (React, Redux)
+- ✅ Aggressive caching (1 year for static assets)
+- ✅ Preconnect to backend API (reduces latency)
+- ✅ DNS prefetch for older browser support
+- ✅ Production build minified with esbuild
+
+### Code Quality
+
+- ✅ All console.log/console.error removed from production
+- ✅ No unused variables or imports
+- ✅ Proper error boundaries
+- ✅ TypeScript-ready component structure
+
+> 📋 **See [PERFORMANCE.md](PERFORMANCE.md) for detailed optimization report and all changes.**
+
+## 📦 Deployment
+
+### Netlify Configuration
+
+The project includes production-ready Netlify configuration:
+
+- **`netlify.toml`** - Security headers, caching, SPA redirects
+- **`public/_headers`** - Additional security headers
+- **`public/_redirects`** - SPA routing support
+
+### Environment Variables
+
+Set `VITE_API_BASE_URL` in Netlify dashboard or `.env` file:
+
+```
+VITE_API_BASE_URL=https://your-backend-url.com
+```
+
+### Build Command
+
+```bash
+npm run build
+```
+
+### Publish Directory
+
+```
+dist
+```
