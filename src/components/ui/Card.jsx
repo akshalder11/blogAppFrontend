@@ -39,12 +39,12 @@ const CardTitle = ({
   ...props
 }) => {
   return (
-    <h3
+    <h2
       className={cn('text-xl font-semibold leading-none tracking-tight line-clamp-1 py-1', className)}
       {...props}
     >
       {children}
-    </h3>
+    </h2>
   );
 };
 

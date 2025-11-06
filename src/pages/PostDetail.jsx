@@ -333,7 +333,7 @@ const PostDetail = () => {
         <CardHeader>
           <div className="flex items-start justify-between gap-4">
             <div className="flex-1">
-              <CardTitle className="text-3xl">{currentPost.title}</CardTitle>
+              <h1 className="text-3xl font-semibold leading-none tracking-tight py-1">{currentPost.title}</h1>
               <CardDescription>
                 By {currentPost.author} • {getTimeDisplay()}
               </CardDescription>
