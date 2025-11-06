@@ -1,0 +1,21 @@
+{
+  "name": "BlogApp - Modern Blogging Platform",
+  "short_name": "BlogApp",
+  "description": "A modern, full-featured blogging platform for creating, sharing, and discovering content",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2563eb",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/vite.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["social", "lifestyle", "productivity"],
+  "lang": "en-US",
+  "dir": "ltr"
+}

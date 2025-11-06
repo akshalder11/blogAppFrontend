@@ -387,6 +387,8 @@ const PostDetail = () => {
                         <img
                           src={url}
                           alt={currentPost.title}
+                          loading="lazy"
+                          decoding="async"
                           className="w-full h-full object-cover"
                           draggable={false}
                           onError={(e) => {
@@ -403,8 +405,10 @@ const PostDetail = () => {
                     <div className="mb-6 overflow-hidden rounded-lg">
                       <audio
                         controls
+                        preload="metadata"
                         className="w-full"
                         src={currentPost.mediaUrls[0]}
+                        aria-label="Audio content"
                       >
                         Your browser does not support the audio element.
                       </audio>
@@ -417,9 +421,11 @@ const PostDetail = () => {
                       renderItem={(url) => (
                         <video
                           controls
+                          preload="metadata"
                           className="w-full h-full object-cover"
                           draggable={false}
                           src={url}
+                          aria-label="Video content"
                         >
                           Your browser does not support the video element.
                         </video>

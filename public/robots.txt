@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://akshalder11-blogapp.netlify.app/sitemap.xml

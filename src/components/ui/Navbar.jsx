@@ -45,11 +45,11 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 bg-white shadow-sm z-50">
+    <nav className="fixed top-0 left-0 right-0 bg-white shadow-sm z-50" role="navigation" aria-label="Main navigation">
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
           {/* Brand */}
-          <Link to="/" className="text-2xl font-bold text-blue-600">
+          <Link to="/" className="text-2xl font-bold text-blue-600" aria-label="BlogApp Home">
             BlogApp
           </Link>
 
@@ -61,11 +61,15 @@ const Navbar = () => {
                 <button
                   onClick={() => setIsDropdownOpen((prev) => !prev)}
                   className="flex items-center gap-2 bg-gray-100 px-3 py-1.5 rounded-full hover:bg-gray-200 transition cursor-pointer"
+                  aria-label="User menu"
+                  aria-expanded={isDropdownOpen}
+                  aria-haspopup="true"
                 >
-                  <UserCircle className="w-6 h-6 text-gray-700" />
+                  <UserCircle className="w-6 h-6 text-gray-700" aria-hidden="true" />
                   <span className="font-medium text-gray-800">{user.username}</span>
                   <CircleChevronDown
                     className={`w-4 h-4 text-gray-700 transition-transform ${isDropdownOpen ? "rotate-180" : ""}`}
+                    aria-hidden="true"
                   />
                 </button>
 

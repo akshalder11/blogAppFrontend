@@ -29,6 +29,8 @@ const PostCard = ({ post, preview }) => {
                 <img
                   src={post.mediaUrls[0]}
                   alt={post.title}
+                  loading="lazy"
+                  decoding="async"
                   className="w-full h-full object-cover"
                   draggable={false}
                   onError={(e) => {
