@@ -2,7 +2,7 @@
   for = "/*"
   [headers.values]
     # Content Security Policy - Prevent XSS attacks
-    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: http:; font-src 'self' data:; connect-src 'self' https://blogapp-backend-xzxa.onrender.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: http:; font-src 'self' data:; connect-src 'self' https://blogappbackend-hkzw.onrender.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
     
     # Cross-Origin-Opener-Policy - Prevent cross-origin attacks
     Cross-Origin-Opener-Policy = "same-origin"
